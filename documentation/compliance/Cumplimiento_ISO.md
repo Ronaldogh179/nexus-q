@@ -73,7 +73,7 @@ La **mantenibilidad** incluye la modularidad, reusabilidad, analizabilidad, modi
 | Fiabilidad | **Media** | Depende de robustez del front-end y de futuros backends |
 | Seguridad | **Parcial** (véase ISO/IEC 27001) | Controles documentados; implementación en evolución |
 | Mantenibilidad | **Alta** (estructura + tests) | Evidencia en repositorio y pipeline de prueba local |
-| Portabilidad | **Media** | Despliegue web estándar; sin empaquetado multiplataforma analizado |
+| Usabilidad y eficiencia de operación | **Alta (entorno escritorio)** | Interfaz optimizada para estaciones de trabajo administrativas con navegación rápida por módulos y alta densidad de información accionable |
 
 ---
 
@@ -150,7 +150,7 @@ La siguiente matriz resume el **grado de alineación** entre cada norma y las pr
 
 ## 6. Conclusiones
 
-Nexus-Q exhibe una **convergencia razonable** con ISO/IEC 25010 en las dimensiones de adecuación funcional (Socios, Caja), usabilidad (interfaz, temas, traducciones) y mantenibilidad (React, Vite, pruebas). La adopción de ISO 9001 se apoya de manera explícita en el **Plan de Pruebas** y en la automatización de verificaciones, como mecanismos de mejora continua. La aproximación a ISO/IEC 27001 se centra en la **clasificación de activos** (datos de socios y movimientos de caja) y en la **integridad conceptual** de los registros financieros en interfaz, reconociendo que un SGSI pleno exige controles organizacionales y técnicos adicionales.
+Nexus-Q exhibe una **convergencia razonable** con ISO/IEC 25010 en las dimensiones de adecuación funcional (Socios, Caja), usabilidad y eficiencia operativa (interfaz orientada a trabajo administrativo en escritorio/laptop) y mantenibilidad (React, Vite, pruebas). La adopción de ISO 9001 se apoya de manera explícita en el **Plan de Pruebas** y en la automatización de verificaciones, como mecanismos de mejora continua. La aproximación a ISO/IEC 27001 se centra en la **clasificación de activos** (datos de socios y movimientos de caja) y en la **integridad conceptual** de los registros financieros en interfaz, reconociendo que un SGSI pleno exige controles organizacionales y técnicos adicionales.
 
 ---
 

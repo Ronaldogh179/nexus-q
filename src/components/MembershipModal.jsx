@@ -25,7 +25,7 @@ const MembershipModal = ({ closeModal }) => {
   };
 
   const handleGuardar = () => {
-    alert(`¡Pago registrado con éxito!\nTotal cobrado: $${total}\nEfectivo: $${pagoEfectivo}\nMercadoPago: $${pagoMP}`);
+    alert(`¡Pago registrado con éxito!\nTotal cobrado: S/ ${total.toLocaleString('es-PE')}\nEfectivo: S/ ${pagoEfectivo.toLocaleString('es-PE')}\nMercado Pago: S/ ${pagoMP.toLocaleString('es-PE')}`);
     closeModal();
   };
 
@@ -43,9 +43,9 @@ const MembershipModal = ({ closeModal }) => {
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-1.5">Seleccionar Plan</label>
               <select onChange={handlePlanChange} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="38000">Musculación Mensual ($38.000)</option>
-                <option value="45000">Crossfit Mensual ($45.000)</option>
-                <option value="15000">Funcional Libre ($15.000)</option>
+                <option value="38000">Musculación Mensual (S/ 38,000)</option>
+                <option value="45000">Crossfit Mensual (S/ 45,000)</option>
+                <option value="15000">Funcional Libre (S/ 15,000)</option>
               </select>
             </div>
             <div>
@@ -56,18 +56,18 @@ const MembershipModal = ({ closeModal }) => {
 
           <div className="grid grid-cols-3 gap-4 border-t border-gray-700 pt-5">
              <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1.5">Descuento ($)</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1.5">Descuento (S/)</label>
               <input type="number" min="0" value={descuento} onChange={(e) => setDescuento(Number(e.target.value))} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div className="flex flex-col justify-end pb-2">
               <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
                 <input type="checkbox" checked={cobrarMatricula} onChange={(e) => setCobrarMatricula(e.target.checked)} className="w-4 h-4 rounded bg-gray-900 border-gray-700 text-blue-500 focus:ring-blue-500"/>
-                Cobrar Matrícula ($8.000)
+                Cobrar Matrícula (S/ 8,000)
               </label>
             </div>
             <div className="bg-gray-900/50 p-3 rounded-xl flex flex-col justify-center items-end border border-blue-500/30 shadow-inner">
               <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Total a pagar</span>
-              <span className="text-3xl font-black text-blue-400">${total.toLocaleString('es-AR')}</span>
+              <span className="text-3xl font-black text-blue-400">S/ {total.toLocaleString('es-PE')}</span>
             </div>
           </div>
 
@@ -80,7 +80,7 @@ const MembershipModal = ({ closeModal }) => {
             <div className="flex gap-4 items-center">
               <span className="w-32 text-sm font-medium text-gray-400">💳 Mercado Pago</span>
               <div className="flex-1 bg-gray-900/50 border border-gray-700 rounded-lg p-2.5 text-blue-300 font-bold font-mono">
-                 ${pagoMP > 0 ? pagoMP.toLocaleString('es-AR') : 0} <span className="text-xs text-gray-500 font-sans font-normal ml-2">(Auto-calculado)</span>
+                 S/ {pagoMP > 0 ? pagoMP.toLocaleString('es-PE') : 0} <span className="text-xs text-gray-500 font-sans font-normal ml-2">(Auto-calculado)</span>
               </div>
             </div>
           </div>

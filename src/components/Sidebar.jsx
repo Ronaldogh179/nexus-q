@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useGym } from '../context/GymContext';
 import { 
-  LayoutDashboard, Users, Tags, Dumbbell, Calendar, 
-  Package, ShoppingCart, Wallet, FileText, ShieldCheck, 
-  CreditCard, Settings, HeartPulse, ChevronDown, ChevronRight,
+  LayoutDashboard, Users, Tags,
+  Package, ShoppingCart, Wallet, FileText, ShieldCheck,
+  CreditCard, Settings, ChevronDown, ChevronRight,
   UserCheck, Activity, BellRing, RotateCcw, MessageSquare, ChevronLeft
 } from 'lucide-react';
 
@@ -84,8 +84,6 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
         {/* RESTO DE SECCIONES PRINCIPALES */}
         <div className={`pt-2 mt-2 border-t ${theme === 'dark' ? 'border-slate-700/60' : 'border-slate-200'}`}>
           <button onClick={() => setActiveTab('planes')} className={navBtnClasses('planes')}><Tags size={18} /><span>Planes</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
-          <button onClick={() => setActiveTab('entrenamiento')} className={navBtnClasses('entrenamiento')}><Dumbbell size={18} /><span>Entrenamiento</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
-          <button onClick={() => setActiveTab('clases')} className={navBtnClasses('clases')}><Calendar size={18} /><span>Clases</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
           <button onClick={() => setActiveTab('productos')} className={navBtnClasses('productos')}><Package size={18} /><span>Productos</span></button>
           <button onClick={() => setActiveTab('puntoventa')} className={navBtnClasses('puntoventa')}><ShoppingCart size={18} /><span>Punto de Venta</span></button>
           <button onClick={() => setActiveTab('caja')} className={navBtnClasses('caja')}><Wallet size={18} /><span>Caja</span></button>
@@ -98,7 +96,6 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
       <div className={`border-t py-2 ${theme === 'dark' ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-slate-50'}`}>
         <button onClick={() => setActiveTab('pagos')} className={navBtnClasses('pagos')}><CreditCard size={18} className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}/><span>Pagos</span></button>
         <button onClick={() => setActiveTab('ajustes')} className={navBtnClasses('ajustes')}><Settings size={18} className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}/><span>Ajustes</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
-        <button onClick={() => setActiveTab('diagnosticos')} className={navBtnClasses('diagnosticos')}><HeartPulse size={18} className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}/><span>Diagnósticos</span></button>
       </div>
 
     </aside>

@@ -20,7 +20,6 @@ const mapSocio = (row) => ({
   iniciales: getIniciales(row.nombre),
   fechaVenc: row.fecha_venc ?? row.fechaVenc ?? '—',
   dias: typeof row.dias === 'number' ? row.dias : 0,
-  apto: Boolean(row.apto),
 });
 
 // Extrae el monto numérico de strings como "Mensual (S/ 100)"
@@ -43,6 +42,7 @@ export const GymProvider = ({ children }) => {
   // ── Estado principal de datos ─────────────────────────────────────────────
   const [socios, setSocios] = useState([]);
   const [ventas, setVentas] = useState([]);
+  const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(null);
 
@@ -60,9 +60,7 @@ export const GymProvider = ({ children }) => {
     { id: 4, nombre: 'Plan Estudiantes', precio: 60, duración: '1 Mes', estado: 'Inactivo', caracteristicas: featuresBase },
   ]);
 
-  const [asistencias, setAsistencias] = useState([
-    { id: 101, nombre: 'Ana López', plan: 'Yoga', hora: '10:45', estado: 'Permitido', avatar: 'AL' },
-  ]);
+  const [asistencias, setAsistencias] = useState([]);
 
   const [rutinas] = useState([
     { id: 1, nombre: 'Hipertrofia Total', nivel: 'Avanzado', duracion: '60 min', enfoque: 'Cuerpo Completo' },
@@ -79,23 +77,24 @@ export const GymProvider = ({ children }) => {
         const [
           { data: sociosData, error: sociosErr },
           { data: ventasData, error: ventasErr },
-          { data: planesData, error: planesErr },
+          { data: productosData, error: productosErr },
+          { data: asistenciasData, error: asistenciasErr },
         ] = await Promise.all([
           supabase.from('socios').select('*').order('id', { ascending: false }),
           supabase.from('ventas').select('*').order('id', { ascending: false }),
-          supabase.from('planes').select('*'),
+          supabase.from('productos').select('*').order('id', { ascending: false }),
+          supabase.from('asistencias').select('*').order('id', { ascending: false }),
         ]);
 
         if (sociosErr) throw sociosErr;
         if (ventasErr) throw ventasErr;
+        if (productosErr) throw productosErr;
+        if (asistenciasErr) throw asistenciasErr;
 
         setSocios((sociosData || []).map(mapSocio));
         setVentas(ventasData || []);
-
-        // Solo reemplaza los planes si Supabase devuelve filas
-        if (!planesErr && planesData && planesData.length > 0) {
-          setPlanes(planesData);
-        }
+        setProductos(productosData || []);
+        setAsistencias(asistenciasData || []);
       } catch (err) {
         console.error('[Nexus-Q] Error cargando datos de Supabase:', err.message);
         setDbError(err.message);
@@ -162,7 +161,6 @@ export const GymProvider = ({ children }) => {
       tel: nuevo.tel,
       mail: nuevo.mail,
       plan: nuevo.plan,
-      apto: Boolean(nuevo.apto),
       estado: nuevo.estado || 'Activo',
       dias: typeof nuevo.dias === 'number' ? nuevo.dias : 30,
       fecha_venc: nuevo.fechaVenc ?? null,
@@ -236,7 +234,6 @@ export const GymProvider = ({ children }) => {
       tel: datosActualizados.tel,
       mail: datosActualizados.mail,
       plan: datosActualizados.plan,
-      apto: datosActualizados.apto,
       estado: datosActualizados.estado,
       dias: datosActualizados.dias,
     };
@@ -647,6 +644,7 @@ export const GymProvider = ({ children }) => {
         // Datos
         socios,
         ventas,
+        productos,
         asistencias,
         rutinas,
         planes,

@@ -147,7 +147,7 @@ const Productos = () => {
                     </td>
 
                     <td className="p-4">
-                      <p className="text-sm font-bold text-gray-200">${prod.precio.toLocaleString('es-AR')}</p>
+                      <p className="text-sm font-bold text-gray-200">S/ {prod.precio.toLocaleString('es-PE')}</p>
                     </td>
 
                     <td className="p-4 text-center">
@@ -218,7 +218,7 @@ const Productos = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Precio de Venta ($)</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Precio de Venta (S/)</label>
                   <input type="number" placeholder="0" className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500" />
                 </div>
               </div>

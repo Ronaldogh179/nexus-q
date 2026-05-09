@@ -82,7 +82,6 @@ const Dashboard = () => {
       ...formData,
       dias: getDiasByPlan(formData.plan),
       estado: 'Activo',
-      apto: true,
       mail: `${formData.dni.trim()}@socio.local`,
     });
     setShowModalSocio(false);
@@ -248,9 +247,9 @@ const Dashboard = () => {
               <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('product')}</label><select className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.producto} onChange={e => onChangeProducto(e.target.value)}>{PRODUCTOS_VENTA.map((producto) => <option key={producto}>{producto}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('amount')}</label><input type="number" min="1" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.cantidad} onChange={e=>setVentaData({...ventaData, cantidad: parseInt(e.target.value, 10) || 1})}/></div>
-                <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('method')}</label><select className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.metodo} onChange={e=>setVentaData({...ventaData, metodo: e.target.value})}><option>Efectivo</option><option>MercadoPago</option></select></div>
+                <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('method')}</label><select className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.metodo} onChange={e=>setVentaData({...ventaData, metodo: e.target.value})}><option>Efectivo</option><option>Mercado Pago</option></select></div>
               </div>
-              <div className={`${theme === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'} p-4 rounded-xl border flex justify-between items-center`}><span className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} font-bold`}>{t('totalToCharge')}</span><span className="text-2xl font-black text-green-500">S/ {(ventaData.monto * ventaData.cantidad).toLocaleString()}</span></div>
+              <div className={`${theme === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'} p-4 rounded-xl border flex justify-between items-center`}><span className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} font-bold`}>{t('totalToCharge')}</span><span className="text-2xl font-black text-green-500">S/ {(ventaData.monto * ventaData.cantidad).toLocaleString('es-PE')}</span></div>
               <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-bold text-white mt-2 flex items-center justify-center gap-2"><CreditCard size={20}/> {t('processPayment')}</button>
             </form>
           </div>

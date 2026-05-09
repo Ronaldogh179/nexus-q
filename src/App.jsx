@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GymProvider, useGym } from './context/GymContext';
 import { ToastProvider } from './components/Toast';
+import { supabase } from './lib/supabase';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Socios from './components/Socios';
@@ -9,8 +10,6 @@ import AlertasInactividad from './components/AlertasInactividad';
 import Reactivacion from './components/Reactivacion';
 import Mensajes from './components/Mensajes';
 import Planes from './components/Planes';
-import Entrenamiento from './components/Entrenamiento';
-import Clases from './components/Clases';
 import Productos from './components/Productos';
 import PuntoVenta from './components/PuntoVenta';
 import Caja from './components/Caja';
@@ -18,7 +17,6 @@ import Facturacion from './components/Facturacion';
 import ControlAcceso from './components/ControlAcceso';
 import Pagos from './components/Pagos';
 import Ajustes from './components/Ajustes';
-import Diagnosticos from './components/Diagnosticos';
 import { Menu, Bell, Sun, Moon, Globe } from 'lucide-react';
 
 function AppContent() {
@@ -35,6 +33,26 @@ function AppContent() {
     t
   } = useGym();
 
+  useEffect(() => {
+    const testSupabaseConnection = async () => {
+      const tables = ['socios', 'productos', 'ventas', 'asistencias'];
+      const checks = await Promise.all(
+        tables.map(async (table) => {
+          const { error } = await supabase.from(table).select('id', { head: true, count: 'exact' });
+          return {
+            table,
+            ok: !error,
+            error: error?.message ?? null,
+          };
+        })
+      );
+
+      console.log('[Nexus-Q] Supabase connection check:', checks);
+    };
+
+    void testSupabaseConnection();
+  }, []);
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
@@ -44,8 +62,6 @@ function AppContent() {
       case 'reactivacion': return <Reactivacion />;
       case 'mensajes': return <Mensajes />;
       case 'planes': return <Planes />;
-      case 'entrenamiento': return <Entrenamiento />;
-      case 'clases': return <Clases />;
       case 'productos': return <Productos />;
       case 'puntoventa': return <PuntoVenta />;
       case 'caja': return <Caja />;
@@ -53,7 +69,6 @@ function AppContent() {
       case 'controlacceso': return <ControlAcceso />;
       case 'pagos': return <Pagos />;
       case 'ajustes': return <Ajustes />;
-      case 'diagnosticos': return <Diagnosticos />;
       default: return <Dashboard />;
     }
   };

@@ -14,7 +14,6 @@ import {
   Mail,
   Phone,
   CreditCard,
-  ShieldCheck,
 } from 'lucide-react';
 
 const PLAN_OPTIONS = [
@@ -56,7 +55,6 @@ const emptyForm = () => ({
   tel: '',
   mail: '',
   plan: PLAN_OPTIONS[0],
-  apto: true,
 });
 
 // Usa created_at de Supabase (TIMESTAMPTZ) para contar altas reales del mes actual
@@ -153,7 +151,6 @@ const Socios = () => {
       tel: socio.tel || '',
       mail: socio.mail || '',
       plan: normalizePlanOption(socio.plan),
-      apto: Boolean(socio.apto),
     });
     setShowModalEditar(true);
   }, []);
@@ -167,7 +164,6 @@ const Socios = () => {
       tel: formData.tel.trim(),
       mail: formData.mail.trim() || `${formData.dni.trim()}@socio.local`,
       plan: formData.plan,
-      apto: formData.apto,
       estado: 'Activo',
       dias: calculoDias,
     });
@@ -184,7 +180,6 @@ const Socios = () => {
       tel: formData.tel.trim(),
       mail: formData.mail.trim() || `${formData.dni.trim()}@socio.local`,
       plan: formData.plan,
-      apto: formData.apto,
       estado: 'Activo',
       dias: calculoDias,
     });
@@ -670,23 +665,6 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
                 ))}
               </select>
             </div>
-          </div>
-          <div
-            className={`sm:col-span-2 flex items-center gap-3 rounded-xl border px-4 py-3 ${
-              theme === 'dark' ? 'border-slate-700 bg-slate-900/60' : 'border-slate-200 bg-slate-50'
-            }`}
-          >
-            <input
-              id="apto-fisico"
-              type="checkbox"
-              checked={formData.apto}
-              onChange={(e) => setFormData({ ...formData, apto: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500"
-            />
-            <label htmlFor="apto-fisico" className={`text-sm flex items-center gap-2 cursor-pointer select-none ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
-              <ShieldCheck size={16} className="text-emerald-500" />
-              {t('medicalFit')}
-            </label>
           </div>
         </div>
         <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">

@@ -59,7 +59,7 @@ const PuntoVenta = () => {
 
   const procesarVenta = () => {
     if (carrito.length === 0) return;
-    alert(`¡Venta registrada con éxito!\nTotal cobrado: $${total.toLocaleString('es-AR')} en ${metodoPago}`);
+    alert(`¡Venta registrada con éxito!\nTotal cobrado: S/ ${total.toLocaleString('es-PE')} en ${metodoPago}`);
     setCarrito([]); // Limpiar carrito
   };
 
@@ -118,7 +118,7 @@ const PuntoVenta = () => {
                   </div>
                   <h3 className="text-sm font-bold text-gray-200 leading-tight mb-1">{prod.nombre}</h3>
                   <p className="text-xs text-gray-500 mb-2">{prod.categoria}</p>
-                  <p className="text-lg font-black text-white mt-auto">${prod.precio.toLocaleString('es-AR')}</p>
+                  <p className="text-lg font-black text-white mt-auto">S/ {prod.precio.toLocaleString('es-PE')}</p>
                   
                   {/* Overlay de agregar */}
                   <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -157,7 +157,7 @@ const PuntoVenta = () => {
                 <div key={item.id} className="bg-[#1e293b] p-3 rounded-xl border border-gray-800 flex items-center justify-between shadow-sm">
                   <div className="flex-1 pr-3">
                     <p className="text-sm font-bold text-gray-200 leading-tight">{item.nombre}</p>
-                    <p className="text-xs text-blue-400 font-bold mt-0.5">${(item.precio * item.cantidad).toLocaleString('es-AR')}</p>
+                    <p className="text-xs text-blue-400 font-bold mt-0.5">S/ {(item.precio * item.cantidad).toLocaleString('es-PE')}</p>
                   </div>
                   
                   <div className="flex items-center gap-2 bg-[#0f172a] rounded-lg p-1 border border-gray-700">
@@ -178,15 +178,15 @@ const PuntoVenta = () => {
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm text-gray-400">
                 <span>Subtotal ({totalItems} items)</span>
-                <span>${total.toLocaleString('es-AR')}</span>
+                <span>S/ {total.toLocaleString('es-PE')}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-400">
                 <span>Descuento</span>
-                <span>$0</span>
+                <span>S/ 0</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-gray-800 mt-2">
                 <span className="text-lg font-bold text-white">Total a Pagar</span>
-                <span className="text-3xl font-black text-green-400">${total.toLocaleString('es-AR')}</span>
+                <span className="text-3xl font-black text-green-400">S/ {total.toLocaleString('es-PE')}</span>
               </div>
             </div>
 
@@ -199,10 +199,10 @@ const PuntoVenta = () => {
                 <Banknote size={16}/> Efectivo
               </button>
               <button 
-                onClick={() => setMetodoPago('Tarjeta/MP')}
-                className={`py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border ${metodoPago === 'Tarjeta/MP' ? 'bg-blue-600/20 text-blue-400 border-blue-500/50' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}
+                onClick={() => setMetodoPago('Mercado Pago')}
+                className={`py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border ${metodoPago === 'Mercado Pago' ? 'bg-blue-600/20 text-blue-400 border-blue-500/50' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}
               >
-                <CreditCard size={16}/> Débito / MP
+                <CreditCard size={16}/> Mercado Pago
               </button>
             </div>
 
@@ -212,7 +212,7 @@ const PuntoVenta = () => {
               className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all text-lg flex items-center justify-center gap-2"
             >
               <ShoppingCart size={20} />
-              Cobrar ${total.toLocaleString('es-AR')}
+              Cobrar S/ {total.toLocaleString('es-PE')}
             </button>
           </div>
 

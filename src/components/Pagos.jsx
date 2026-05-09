@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, Smartphone, Building, CheckCircle2, AlertCircle, Settings, Search, User, Filter, XCircle, RefreshCw } from 'lucide-react';
+import { CreditCard, Smartphone, Banknote, CheckCircle2, AlertCircle, Settings, Search, User, Filter, XCircle, RefreshCw } from 'lucide-react';
 
 const Pagos = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -7,18 +7,16 @@ const Pagos = () => {
   // Estado simulado de las pasarelas de pago
   const [pasarelas, setPasarelas] = useState([
     { id: 'mp', nombre: 'Mercado Pago', tipo: 'Billetera Virtual / QR', estado: 'Conectado', color: 'blue' },
-    { id: 'stripe', nombre: 'Stripe (Tarjetas)', tipo: 'Débito Automático', estado: 'Conectado', color: 'purple' },
-    { id: 'bank', nombre: 'Transferencia Bancaria', tipo: 'Banco Galicia', estado: 'Revisión', color: 'orange' },
-    { id: 'cash', nombre: 'Efectivo en Recepción', tipo: 'Manual', estado: 'Conectado', color: 'green' }
+    { id: 'cash', nombre: 'Efectivo', tipo: 'Cobro en recepción', estado: 'Conectado', color: 'green' },
   ]);
 
   // Base de datos simulada de socios adheridos al débito automático
   const [suscripciones] = useState([
-    { id: 'SUB-001', socio: 'Carlos Ruiz', plan: 'Musculación Semestral', monto: 38000, tarjeta: 'Visa termina en 4092', proximoCobro: '15/05/2026', estado: 'Activo' },
-    { id: 'SUB-002', socio: 'Ana López', plan: 'Yoga Vinyasa', monto: 25000, tarjeta: 'Mastercard termina en 1128', proximoCobro: '10/05/2026', estado: 'Activo' },
-    { id: 'SUB-003', socio: 'Marcos Díaz', plan: 'CrossFit Anual', monto: 45000, tarjeta: 'Amex termina en 9931', proximoCobro: '05/05/2026', estado: 'Rechazado' },
-    { id: 'SUB-004', socio: 'Laura Fernández', plan: 'Pase Libre', monto: 55000, tarjeta: 'Visa termina en 7741', proximoCobro: '20/05/2026', estado: 'Activo' },
-    { id: 'SUB-005', socio: 'Gabriela Silva', plan: 'Funcional Libre', monto: 30000, tarjeta: 'Mercado Pago', proximoCobro: '01/05/2026', estado: 'Pausado' },
+    { id: 'SUB-001', socio: 'Carlos Ruiz', plan: 'Musculación Semestral', monto: 38000, metodo: 'Mercado Pago', proximoCobro: '15/05/2026', estado: 'Activo' },
+    { id: 'SUB-002', socio: 'Ana López', plan: 'Yoga Vinyasa', monto: 25000, metodo: 'Efectivo', proximoCobro: '10/05/2026', estado: 'Activo' },
+    { id: 'SUB-003', socio: 'Marcos Díaz', plan: 'CrossFit Anual', monto: 45000, metodo: 'Mercado Pago', proximoCobro: '05/05/2026', estado: 'Rechazado' },
+    { id: 'SUB-004', socio: 'Laura Fernández', plan: 'Pase Libre', monto: 55000, metodo: 'Efectivo', proximoCobro: '20/05/2026', estado: 'Activo' },
+    { id: 'SUB-005', socio: 'Gabriela Silva', plan: 'Funcional Libre', monto: 30000, metodo: 'Mercado Pago', proximoCobro: '01/05/2026', estado: 'Pausado' },
   ]);
 
   const suscripcionesFiltradas = suscripciones.filter(sub => 
@@ -51,14 +49,14 @@ const Pagos = () => {
       <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
         <Settings size={20} className="text-gray-400"/> Integraciones Activas
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         {pasarelas.map(pasarela => (
           <div key={pasarela.id} className="bg-[#1e293b] p-5 rounded-2xl border border-gray-800 shadow-md relative overflow-hidden group">
             <div className={`absolute top-0 left-0 w-1 h-full ${pasarela.estado === 'Conectado' ? 'bg-green-500' : pasarela.estado === 'Revisión' ? 'bg-orange-500' : 'bg-gray-600'}`}></div>
             
             <div className="flex justify-between items-start mb-4 pl-2">
               <div className={`p-2.5 rounded-xl bg-${pasarela.color}-500/10 text-${pasarela.color}-400 border border-${pasarela.color}-500/20`}>
-                {pasarela.id === 'mp' ? <Smartphone size={24}/> : pasarela.id === 'stripe' ? <CreditCard size={24}/> : <Building size={24}/>}
+                {pasarela.id === 'mp' ? <Smartphone size={24}/> : <Banknote size={24}/>}
               </div>
               <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border
                 ${pasarela.estado === 'Conectado' ? 'bg-green-500/10 text-green-400 border-green-500/30' : 
@@ -138,13 +136,13 @@ const Pagos = () => {
                     
                     <td className="p-4">
                       <p className="font-medium text-gray-200 text-sm">{sub.plan}</p>
-                      <p className="text-xs font-bold text-blue-400 mt-0.5">${sub.monto.toLocaleString('es-AR')} / mes</p>
+                      <p className="text-xs font-bold text-blue-400 mt-0.5">S/ {sub.monto.toLocaleString('es-PE')} / mes</p>
                     </td>
 
                     <td className="p-4">
                       <div className="flex items-center gap-2 text-sm text-gray-300 bg-[#0f172a] px-3 py-1.5 rounded-lg border border-gray-700 w-fit">
                         <CreditCard size={14} className="text-gray-500"/>
-                        {sub.tarjeta}
+                        {sub.metodo}
                       </div>
                     </td>
 

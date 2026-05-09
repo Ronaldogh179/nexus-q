@@ -52,11 +52,11 @@ const Facturacion = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-md">
           <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Total Cobrado (Mes)</p>
-          <p className="text-3xl font-black text-green-400">${totalPagadas.toLocaleString('es-AR')}</p>
+          <p className="text-3xl font-black text-green-400">S/ {totalPagadas.toLocaleString('es-PE')}</p>
         </div>
         <div className="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-md">
           <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Por Cobrar</p>
-          <p className="text-3xl font-black text-orange-400">${totalPendientes.toLocaleString('es-AR')}</p>
+          <p className="text-3xl font-black text-orange-400">S/ {totalPendientes.toLocaleString('es-PE')}</p>
         </div>
         <div className="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-md">
           <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Facturas Emitidas</p>
@@ -141,7 +141,7 @@ const Facturacion = () => {
                     </td>
 
                     <td className="p-4 text-right">
-                      <p className="text-base font-black text-white">${fac.monto.toLocaleString('es-AR')}</p>
+                      <p className="text-base font-black text-white">S/ {fac.monto.toLocaleString('es-PE')}</p>
                     </td>
 
                     <td className="p-4 pr-6 text-right">
@@ -203,16 +203,15 @@ const Facturacion = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Monto Total ($)</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Monto Total (S/)</label>
                   <input type="number" placeholder="0" className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Condición de Venta</label>
                   <select className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
                     <option>Contado</option>
-                    <option>Tarjeta de Débito</option>
-                    <option>Tarjeta de Crédito</option>
-                    <option>Transferencia</option>
+                    <option>Mercado Pago</option>
+                    <option>Efectivo</option>
                   </select>
                 </div>
               </div>

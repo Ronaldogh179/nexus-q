@@ -72,7 +72,7 @@ const Metricas = () => {
     ? ((sociosActivos.length / totalSocios) * 100).toFixed(1)
     : '0.0';
 
-  const formatSoles = (value) => `S/ ${Number(value || 0).toLocaleString()}`;
+  const formatSoles = (value) => `S/ ${Number(value || 0).toLocaleString('es-PE')}`;
 
   const cardClass =
     theme === 'dark'

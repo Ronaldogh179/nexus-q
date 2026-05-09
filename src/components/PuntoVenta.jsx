@@ -1,25 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useGym } from 'src/context/GymContext.jsx';
+import { supabase } from 'src/lib/supabase.js';
 import { ShoppingCart, Search, Plus, Minus, Trash2, CreditCard, Banknote, User, Tag, ChevronRight } from 'lucide-react';
 
 const PuntoVenta = () => {
+  const { registrarVenta } = useGym();
+  const [productosDb, setProductosDb] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('Efectivo');
+  const formatSoles = (value) =>
+    Number(value ?? 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // Catálogo rápido basado en el módulo de Productos
-  const catalogo = [
-    { id: 1, nombre: 'Agua Mineral 500ml', categoria: 'Bebidas', precio: 1500, stock: 120, color: 'blue' },
-    { id: 2, nombre: 'Gatorade Manzana', categoria: 'Bebidas', precio: 2200, stock: 15, color: 'orange' },
-    { id: 3, nombre: 'Proteína Whey 1kg', categoria: 'Suplementos', precio: 45000, stock: 5, color: 'purple' },
-    { id: 4, nombre: 'Barra de Proteína', categoria: 'Snacks', precio: 2500, stock: 45, color: 'yellow' },
-    { id: 5, nombre: 'Creatina 300g', categoria: 'Suplementos', precio: 32000, stock: 22, color: 'red' },
-    { id: 6, nombre: 'Remera Entrenamiento', categoria: 'Indumentaria', precio: 15000, stock: 30, color: 'green' },
-    { id: 7, nombre: 'Toalla Microfibra', categoria: 'Accesorios', precio: 8500, stock: 10, color: 'gray' },
-    { id: 8, nombre: 'Shaker Mezclador', categoria: 'Accesorios', precio: 6000, stock: 25, color: 'pink' },
-  ];
+  useEffect(() => {
+    const fetchProductos = async () => {
+      const { data, error } = await supabase.from('productos').select('*').order('id', { ascending: false });
+      if (error) {
+        console.error('[POS] Error cargando productos:', error.message);
+        return;
+      }
+      setProductosDb(data ?? []);
+    };
 
-  const categorias = ['Todas', 'Bebidas', 'Snacks', 'Suplementos', 'Accesorios', 'Indumentaria'];
+    void fetchProductos();
+  }, []);
+
+  const catalogo = useMemo(
+    () =>
+      (productosDb ?? []).map((p) => ({
+        id: p.id,
+        nombre: p.nombre ?? 'Producto',
+        categoria: p.categoria ?? 'General',
+        precio: Number(p.precio ?? 0),
+        stock: Number(p.stock ?? 0),
+        color: 'blue',
+      })),
+    [productosDb]
+  );
+
+  const categorias = useMemo(
+    () => ['Todas', ...new Set(catalogo.map((p) => p.categoria).filter(Boolean))],
+    [catalogo]
+  );
 
   // Filtrado del catálogo
   const productosFiltrados = catalogo.filter(p => {
@@ -57,9 +80,15 @@ const PuntoVenta = () => {
   const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
-  const procesarVenta = () => {
+  const procesarVenta = async () => {
     if (carrito.length === 0) return;
-    alert(`¡Venta registrada con éxito!\nTotal cobrado: S/ ${total.toLocaleString('es-PE')} en ${metodoPago}`);
+    await registrarVenta({
+      concepto: carrito.map((item) => `${item.cantidad}x ${item.nombre}`).join(' · '),
+      monto: total,
+      metodo: metodoPago,
+      tipo: 'ingreso',
+    });
+    alert(`¡Venta registrada con éxito!\nTotal cobrado: S/ ${formatSoles(total)} en ${metodoPago}`);
     setCarrito([]); // Limpiar carrito
   };
 
@@ -118,7 +147,7 @@ const PuntoVenta = () => {
                   </div>
                   <h3 className="text-sm font-bold text-gray-200 leading-tight mb-1">{prod.nombre}</h3>
                   <p className="text-xs text-gray-500 mb-2">{prod.categoria}</p>
-                  <p className="text-lg font-black text-white mt-auto">S/ {prod.precio.toLocaleString('es-PE')}</p>
+                  <p className="text-lg font-black text-white mt-auto">S/ {formatSoles(prod.precio)}</p>
                   
                   {/* Overlay de agregar */}
                   <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -128,6 +157,11 @@ const PuntoVenta = () => {
                   </div>
                 </button>
               ))}
+              {productosFiltrados.length === 0 && (
+                <div className="col-span-full p-8 text-center text-sm text-gray-500">
+                  No hay productos disponibles en Supabase para este filtro.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -157,7 +191,7 @@ const PuntoVenta = () => {
                 <div key={item.id} className="bg-[#1e293b] p-3 rounded-xl border border-gray-800 flex items-center justify-between shadow-sm">
                   <div className="flex-1 pr-3">
                     <p className="text-sm font-bold text-gray-200 leading-tight">{item.nombre}</p>
-                    <p className="text-xs text-blue-400 font-bold mt-0.5">S/ {(item.precio * item.cantidad).toLocaleString('es-PE')}</p>
+                    <p className="text-xs text-blue-400 font-bold mt-0.5">S/ {formatSoles(item.precio * item.cantidad)}</p>
                   </div>
                   
                   <div className="flex items-center gap-2 bg-[#0f172a] rounded-lg p-1 border border-gray-700">
@@ -178,7 +212,7 @@ const PuntoVenta = () => {
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm text-gray-400">
                 <span>Subtotal ({totalItems} items)</span>
-                <span>S/ {total.toLocaleString('es-PE')}</span>
+                <span>S/ {formatSoles(total)}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-400">
                 <span>Descuento</span>
@@ -186,7 +220,7 @@ const PuntoVenta = () => {
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-gray-800 mt-2">
                 <span className="text-lg font-bold text-white">Total a Pagar</span>
-                <span className="text-3xl font-black text-green-400">S/ {total.toLocaleString('es-PE')}</span>
+                <span className="text-3xl font-black text-green-400">S/ {formatSoles(total)}</span>
               </div>
             </div>
 
@@ -212,7 +246,7 @@ const PuntoVenta = () => {
               className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-800 disabled:text-gray-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all text-lg flex items-center justify-center gap-2"
             >
               <ShoppingCart size={20} />
-              Cobrar S/ {total.toLocaleString('es-PE')}
+              Cobrar S/ {formatSoles(total)}
             </button>
           </div>
 

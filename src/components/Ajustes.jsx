@@ -9,7 +9,7 @@ const Ajustes = () => {
     nombre: 'Nexus-Q Fitness Center',
     telefono: '+54 9 11 4444-5555',
     direccion: 'Av. Libertador 1234, CABA',
-    moneda: 'ARS ($)',
+    moneda: 'PEN (S/)',
     idioma: 'Español'
   });
 
@@ -95,7 +95,7 @@ const Ajustes = () => {
                   <input type="text" value={gymConfig.direccion} onChange={(e)=>setGymConfig({...gymConfig, direccion: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-1"><Globe size={14}/> Idioma del Sistema</label>
+                  <label className="text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-1"><Globe size={14}/> Idioma del Sistema</label>
                   <select value={gymConfig.idioma} onChange={(e)=>setGymConfig({...gymConfig, idioma: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
                     <option>Español</option>
                     <option>Inglés</option>
@@ -105,9 +105,7 @@ const Ajustes = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Moneda Base</label>
                   <select value={gymConfig.moneda} onChange={(e)=>setGymConfig({...gymConfig, moneda: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
-                    <option>ARS ($)</option>
-                    <option>USD ($)</option>
-                    <option>EUR (€)</option>
+                    <option>PEN (S/)</option>
                   </select>
                 </div>
               </div>

@@ -14,16 +14,6 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, Activity, DollarSign } from 'lucide-react';
 
-const PLACEHOLDER_VENTAS = [
-  { label: 'Lun', ingresos: 180 },
-  { label: 'Mar', ingresos: 240 },
-  { label: 'Mie', ingresos: 210 },
-  { label: 'Jue', ingresos: 290 },
-  { label: 'Vie', ingresos: 360 },
-  { label: 'Sab', ingresos: 320 },
-  { label: 'Dom', ingresos: 260 },
-];
-
 const Metricas = () => {
   const { socios, ventas, asistencias, theme, t } = useGym();
 
@@ -56,15 +46,29 @@ const Metricas = () => {
   );
 
   const dataVentas = useMemo(() => {
-    if (!ventas.length) return PLACEHOLDER_VENTAS;
+    const labels = Array.from({ length: 7 }, (_, index) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - index));
+      return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
+    });
 
-    return ventas
-      .slice(0, 7)
-      .reverse()
-      .map((venta, index) => ({
-        label: venta.fecha || `Día ${index + 1}`,
-        ingresos: Number(venta.monto) || 0,
-      }));
+    const sumsByDay = new Map(labels.map((label) => [label, 0]));
+
+    (ventas ?? []).forEach((venta) => {
+      if ((venta.tipo ?? 'ingreso').toLowerCase() !== 'ingreso') return;
+      const rawDate = venta.created_at ?? venta.fecha;
+      if (!rawDate) return;
+      const dateObj = new Date(rawDate);
+      if (Number.isNaN(dateObj.getTime())) return;
+      const label = dateObj.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
+      if (!sumsByDay.has(label)) return;
+      sumsByDay.set(label, (sumsByDay.get(label) ?? 0) + Number(venta.monto ?? 0));
+    });
+
+    return labels.map((label) => ({
+      label,
+      ingresos: sumsByDay.get(label) ?? 0,
+    }));
   }, [ventas]);
 
   const totalSocios = socios.length;

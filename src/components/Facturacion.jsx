@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useGym } from 'src/context/GymContext.jsx';
 import { FileText, Search, Plus, Download, Mail, Filter, CheckCircle2, Clock, AlertTriangle, XCircle, FileDigit } from 'lucide-react';
 
 const Facturacion = () => {
+  const { ventas } = useGym();
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('Todas');
   const [showModalFactura, setShowModalFactura] = useState(false);
+  const estados = ['Todas', 'Pagada', 'Pendiente'];
 
-  // Base de datos simulada de facturas
-  const [facturas] = useState([
-    { id: 'FC-000125', fecha: 'Hoy', cliente: 'Martín (Musculación)', monto: 38000, estado: 'Pagada', email: 'martin@example.com' },
-    { id: 'FC-000124', fecha: 'Hoy', cliente: 'Consumidor Final (POS)', monto: 3000, estado: 'Pagada', email: '' },
-    { id: 'FC-000123', fecha: 'Ayer', cliente: 'Laura Fernández', monto: 45000, estado: 'Pagada', email: 'laura@example.com' },
-    { id: 'FC-000122', fecha: '15/04/2026', cliente: 'Gimnasio Equipamientos S.A.', monto: 120000, estado: 'Pendiente', email: 'ventas@equipamientos.com' },
-    { id: 'FC-000121', fecha: '10/04/2026', cliente: 'Carlos Ruiz', monto: 38000, estado: 'Vencida', email: 'carlos@example.com' },
-    { id: 'FC-000120', fecha: '05/04/2026', cliente: 'Valeria Gómez', monto: 55000, estado: 'Anulada', email: 'valeria@example.com' },
-  ]);
-
-  const estados = ['Todas', 'Pagada', 'Pendiente', 'Vencida', 'Anulada'];
+  const facturas = useMemo(
+    () =>
+      (ventas ?? []).map((v) => ({
+        id: `FC-${String(v.id ?? Date.now()).padStart(6, '0')}`,
+        fecha: v.created_at
+          ? new Date(v.created_at).toLocaleDateString('es-PE')
+          : 'Hoy',
+        cliente: v.concepto || 'Venta en caja',
+        monto: Number(v.monto ?? 0),
+        estado: (v.tipo ?? 'ingreso').toLowerCase() === 'ingreso' ? 'Pagada' : 'Pendiente',
+        email: '',
+      })),
+    [ventas]
+  );
 
   // Lógica de filtrado
   const facturasFiltradas = facturas.filter(f => {
@@ -27,7 +33,7 @@ const Facturacion = () => {
 
   // Cálculos de KPIs
   const totalPagadas = facturas.filter(f => f.estado === 'Pagada').reduce((acc, curr) => acc + curr.monto, 0);
-  const totalPendientes = facturas.filter(f => f.estado === 'Pendiente' || f.estado === 'Vencida').reduce((acc, curr) => acc + curr.monto, 0);
+  const totalPendientes = facturas.filter(f => f.estado === 'Pendiente').reduce((acc, curr) => acc + curr.monto, 0);
 
   return (
     <div className="p-6 md:p-8 animate-in fade-in duration-500 bg-[#111827] min-h-screen">
@@ -65,7 +71,7 @@ const Facturacion = () => {
         <div className="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-md flex items-center justify-center">
            <button className="flex flex-col items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors">
              <FileDigit size={32} />
-             <span className="font-bold text-sm">Configuración AFIP/Tributaria</span>
+             <span className="font-bold text-sm">Configuración SUNAT/Tributaria</span>
            </button>
         </div>
       </div>
@@ -129,13 +135,10 @@ const Facturacion = () => {
                     <td className="p-4 text-center">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border
                         ${fac.estado === 'Pagada' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
-                          fac.estado === 'Pendiente' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 
-                          fac.estado === 'Vencida' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
+                          fac.estado === 'Pendiente' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
                           'bg-gray-700/30 text-gray-400 border-gray-600'}`}>
                         {fac.estado === 'Pagada' && <CheckCircle2 size={12} />}
                         {fac.estado === 'Pendiente' && <Clock size={12} />}
-                        {fac.estado === 'Vencida' && <AlertTriangle size={12} />}
-                        {fac.estado === 'Anulada' && <XCircle size={12} />}
                         {fac.estado}
                       </span>
                     </td>

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Tags,
   Package, ShoppingCart, Wallet, FileText, ShieldCheck,
   CreditCard, Settings, ChevronDown, ChevronRight,
-  UserCheck, Activity, BellRing, RotateCcw, MessageSquare, ChevronLeft
+  UserCheck, Activity, BellRing, RotateCcw, MessageSquare, ChevronLeft, Bot
 } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
@@ -52,7 +52,7 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
         <div className="flex flex-col">
           <button 
             onClick={() => setSociosMenuOpen(!sociosMenuOpen)} 
-            className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors border-l-2 ${['socios', 'metricas', 'alertas', 'reactivacion', 'mensajes'].includes(activeTab) || sociosMenuOpen ? `${theme === 'dark' ? 'border-transparent text-white bg-slate-800/60' : 'border-transparent text-slate-800 bg-slate-100'}` : `${theme === 'dark' ? 'border-transparent text-slate-400 hover:bg-slate-800/70' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}`}
+            className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors border-l-2 ${['socios', 'metricas', 'alertas', 'reactivacion', 'mensajes', 'nexusai'].includes(activeTab) || sociosMenuOpen ? `${theme === 'dark' ? 'border-transparent text-white bg-slate-800/60' : 'border-transparent text-slate-800 bg-slate-100'}` : `${theme === 'dark' ? 'border-transparent text-slate-400 hover:bg-slate-800/70' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}`}
           >
             <div className="flex items-center gap-3">
               <Users size={18} />
@@ -77,6 +77,10 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
             </button>
             <button onClick={() => setActiveTab('mensajes')} className={subNavBtnClasses('mensajes')}>
               <MessageSquare size={16} /> Mensajes
+            </button>
+            <button onClick={() => setActiveTab('nexusai')} className={subNavBtnClasses('nexusai')}>
+              <Bot size={16} className={activeTab === 'nexusai' ? 'text-blue-400' : ''} />
+              <span className={activeTab === 'nexusai' ? 'text-blue-400 font-bold' : ''}>Nexus-AI</span>
             </button>
           </div>
         </div>

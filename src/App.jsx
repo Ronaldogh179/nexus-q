@@ -17,6 +17,7 @@ import Facturacion from './components/Facturacion';
 import ControlAcceso from './components/ControlAcceso';
 import Pagos from './components/Pagos';
 import Ajustes from './components/Ajustes';
+import NexusAI from './components/NexusAI';
 import { Menu, Bell, Sun, Moon, Globe } from 'lucide-react';
 
 function AppContent() {
@@ -69,6 +70,7 @@ function AppContent() {
       case 'controlacceso': return <ControlAcceso />;
       case 'pagos': return <Pagos />;
       case 'ajustes': return <Ajustes />;
+      case 'nexusai': return <NexusAI />;
       default: return <Dashboard />;
     }
   };

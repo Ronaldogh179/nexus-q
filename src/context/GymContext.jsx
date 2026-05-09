@@ -610,13 +610,24 @@ export const GymProvider = ({ children }) => {
   const dashboardMetrics = useMemo(() => {
     const ahora = new Date();
 
-    const sociosActivos = socios.filter((s) => s.estado === 'Activo').length;
+    const hoy = new Date(ahora);
+    hoy.setHours(0, 0, 0, 0);
+
+    const esVencido = (s) => {
+      if (s.estado === 'Vencida' || s.estado === 'Vencido') return true;
+      const fv = s.fecha_venc ?? s.fechaVenc;
+      if (fv && fv !== '—') {
+        const d = new Date(fv);
+        return !isNaN(d.getTime()) && d < hoy;
+      }
+      return false;
+    };
+
+    const sociosActivos = socios.filter((s) => s.estado === 'Activo' && !esVencido(s)).length;
     const sociosPorVencer = socios.filter(
-      (s) => s.estado === 'Activo' && typeof s.dias === 'number' && s.dias > 0 && s.dias <= 7
+      (s) => s.estado === 'Activo' && !esVencido(s) && typeof s.dias === 'number' && s.dias > 0 && s.dias <= 7
     ).length;
-    const sociosVencidos = socios.filter(
-      (s) => s.estado === 'Vencida' || s.estado === 'Vencido'
-    ).length;
+    const sociosVencidos = socios.filter(esVencido).length;
 
     // COUNT real usando created_at de Supabase (campo TIMESTAMPTZ)
     const nuevosEsteMes = socios.filter((s) => {
@@ -646,6 +657,13 @@ export const GymProvider = ({ children }) => {
       })
       .reduce((acc, v) => acc + Number(v.monto ?? 0), 0);
 
+    // Asistencias registradas hoy
+    const fechaHoyISO = hoy.toISOString().split('T')[0];
+    const asistenciasHoy = asistencias.filter((a) => {
+      if (!a.created_at) return false;
+      return a.created_at.startsWith(fechaHoyISO);
+    }).length;
+
     return {
       totalSocios: socios.length,
       sociosActivos,
@@ -657,8 +675,9 @@ export const GymProvider = ({ children }) => {
       ingresosEsteMes,
       balanceNeto: totalIngresos - totalEgresos,
       totalVentas: ventas.length,
+      asistenciasHoy,
     };
-  }, [socios, ventas]);
+  }, [socios, ventas, asistencias]);
 
   const t = useCallback(
     (key) => {

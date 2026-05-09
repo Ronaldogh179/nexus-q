@@ -48,11 +48,24 @@ const Dashboard = () => {
   const [checkInDni, setCheckInDni] = useState('');
   const [checkInResult, setCheckInResult] = useState(null);
 
-  // --- LÓGICA DE FILTRADO (Diferenciando por días como pide el video) ---
-  const sociosVencidos = socios.filter(s => s.estado === 'Vencida');
-  const socios0a7 = socios.filter(s => s.dias > 0 && s.dias <= 7);
-  const socios8a15 = socios.filter(s => s.dias > 7 && s.dias <= 15);
-  const socios15Plus = socios.filter(s => s.dias > 15);
+  // --- LÓGICA DE FILTRADO (vencidos por estado Y por fecha_venc < hoy) ---
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const esVencido = (s) => {
+    if (s.estado === 'Vencida' || s.estado === 'Vencido') return true;
+    const fv = s.fechaVenc ?? s.fecha_venc;
+    if (fv && fv !== '—') {
+      const d = new Date(fv);
+      return !isNaN(d.getTime()) && d < hoy;
+    }
+    return false;
+  };
+
+  const sociosVencidos = socios.filter(esVencido);
+  const socios0a7 = socios.filter(s => !esVencido(s) && s.dias > 0 && s.dias <= 7);
+  const socios8a15 = socios.filter(s => !esVencido(s) && s.dias > 7 && s.dias <= 15);
+  const socios15Plus = socios.filter(s => !esVencido(s) && s.dias > 15);
 
   const getActiveData = () => {
     switch(activeHealthTab) {
@@ -150,8 +163,8 @@ const Dashboard = () => {
         <StatCard
           theme={theme}
           title={t('attendancesToday')}
-          value={asistencias.length}
-          sub="Check-ins de esta sesión"
+          value={dashboardMetrics.asistenciasHoy ?? 0}
+          sub={`${asistencias.length} registros totales en la BD`}
           icon={CalendarDays}
           color="purple"
         />

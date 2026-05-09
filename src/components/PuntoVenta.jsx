@@ -83,15 +83,14 @@ const PuntoVenta = () => {
 
   const procesarVenta = async () => {
     if (carrito.length === 0) return;
-    await registrarVenta({
+    const res = await registrarVenta({
       concepto: carrito.map((item) => `${item.cantidad}x ${item.nombre}`).join(' · '),
       monto: total,
       metodo: metodoPago,
       tipo: 'ingreso',
       socio_id: socioIdSeleccionado || null,
     });
-    alert(`¡Venta registrada con éxito!\nTotal cobrado: S/ ${formatSoles(total)} en ${metodoPago}`);
-    setCarrito([]); // Limpiar carrito
+    if (res?.ok) setCarrito([]);
   };
 
   return (

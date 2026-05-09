@@ -194,34 +194,48 @@ export const GymProvider = ({ children }) => {
 
     const { data: insertedSocio, error: socioErr } = await supabase
       .from('socios')
-      .insert(socioPayload)
+      .insert([socioPayload])
       .select()
       .single();
 
-    if (socioErr) {
-      console.error('[Nexus-Q] Error al insertar socio:', socioErr.message);
-      addToast({ message: `Error al registrar socio: ${socioErr.message}`, type: 'error' });
-      return;
+    if (socioErr || !insertedSocio) {
+      console.error('[Nexus-Q] Error al insertar socio:', socioErr?.message);
+      addToast({ message: `Error al registrar socio: ${socioErr?.message ?? 'Error desconocido'}`, type: 'error' });
+      return { ok: false, error: socioErr };
     }
 
-    // Auto-genera registro en ventas (Caja) con el monto del plan
     const monto = getMontoByPlan(nuevo.plan);
     if (monto > 0) {
-      const { error: ventaErr } = await supabase.from('ventas').insert({
-        concepto: `Membresía: ${nuevo.nombre} — ${nuevo.plan}`,
-        monto,
-        metodo: 'Efectivo',
-        tipo: 'ingreso',
-        socio_id: insertedSocio.id,
-      });
+      const { error: ventaErr } = await supabase.from('ventas').insert([
+        {
+          concepto: `Membresía: ${nuevo.nombre} — ${nuevo.plan}`,
+          monto,
+          metodo: 'Efectivo',
+          tipo: 'ingreso',
+          socio_id: insertedSocio.id,
+        },
+      ]);
 
       if (ventaErr) {
-        console.warn('[Nexus-Q] Socio creado pero error al registrar venta:', ventaErr.message);
+        console.error('[Nexus-Q] Error al registrar venta de membresía:', ventaErr.message);
+        const { error: rollbackErr } = await supabase.from('socios').delete().eq('id', insertedSocio.id);
+        if (rollbackErr) {
+          addToast({
+            message: `Error en caja y no se pudo revertir el socio: ${rollbackErr.message}`,
+            type: 'error',
+          });
+        } else {
+          addToast({
+            message: `Error al registrar la venta en caja. El alta del socio no se guardó.`,
+            type: 'error',
+          });
+        }
+        return { ok: false, error: ventaErr };
       }
     }
 
     addToast({ message: `✓ Socio "${nuevo.nombre}" registrado y guardado en la nube.`, type: 'success' });
-    // El Realtime actualizará el estado local automáticamente
+    return { ok: true };
   }, [addToast]);
 
   const eliminarSocio = useCallback(async (id) => {
@@ -284,16 +298,15 @@ export const GymProvider = ({ children }) => {
       socio_id: v.socio_id ?? null,
     };
 
-    const { error } = await supabase.from('ventas').insert(ventaPayload);
+    const { error } = await supabase.from('ventas').insert([ventaPayload]);
     if (error) {
       console.error('[Nexus-Q] Error al registrar venta:', error.message);
       addToast({ message: `Error al registrar venta: ${error.message}`, type: 'error' });
-      // Fallback local para no bloquear el flujo
-      setVentas((prev) => [{ ...v, id: `TRX-${Date.now()}`, fecha: 'Hoy' }, ...prev]);
-    } else {
-      addToast({ message: `Venta de S/ ${v.monto} registrada en Caja.`, type: 'success' });
+      return { ok: false, error };
     }
-    // El Realtime actualizará el estado local
+
+    addToast({ message: `Venta de S/ ${v.monto} registrada en Caja.`, type: 'success' });
+    return { ok: true };
   }, [addToast]);
 
   // ── Mutaciones de Planes (local; Supabase opcional) ───────────────────────
@@ -312,7 +325,7 @@ export const GymProvider = ({ children }) => {
     setPlanes((prev) => prev.filter((plan) => plan.id !== id));
   }, []);
 
-  // ── Check-in: valida membresía, persiste en Supabase y actualiza estado local ──
+  // ── Check-in: persiste en Supabase; la UI se actualiza vía Realtime (sin estado optimista) ──
 
   const realizarCheckIn = useCallback(
     async (dni) => {
@@ -325,29 +338,19 @@ export const GymProvider = ({ children }) => {
       const estadoAcceso = membresiaVencida ? 'Denegado' : 'Permitido';
       const motivo = membresiaVencida ? 'Membresía Vencida' : 'Socio Activo';
 
-      const nuevoCheckIn = {
-        id: Date.now(),
-        nombre: socio.nombre,
-        plan: socio.plan,
-        hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        estado: estadoAcceso,
-        motivo,
-        avatar: socio.iniciales,
-      };
-
-      // Actualización optimista en el estado local
-      setAsistencias((prev) => [nuevoCheckIn, ...prev]);
-
-      // Persistencia en Supabase
-      const { error } = await supabase.from('asistencias').insert({
+      const row = {
         socio_id: socio.id,
         nombre: socio.nombre,
         plan: socio.plan,
         estado_acceso: estadoAcceso,
-      });
+      };
+
+      const { error } = await supabase.from('asistencias').insert([row]);
 
       if (error) {
-        console.warn('[Nexus-Q] Check-in registrado localmente, error en Supabase:', error.message);
+        console.error('[Nexus-Q] Error al registrar check-in en Supabase:', error.message);
+        addToast({ message: `Error al registrar acceso: ${error.message}`, type: 'error' });
+        return { success: false, motivo: error.message, socio };
       }
 
       if (estadoAcceso === 'Permitido') {

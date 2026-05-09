@@ -76,26 +76,28 @@ const Dashboard = () => {
     window.open(`https://wa.me/${socio.tel}?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
 
-  const submitSocio = (e) => {
+  const submitSocio = async (e) => {
     e.preventDefault();
-    agregarSocio({
+    const res = await agregarSocio({
       ...formData,
       dias: getDiasByPlan(formData.plan),
       estado: 'Activo',
       mail: `${formData.dni.trim()}@socio.local`,
     });
+    if (!res?.ok) return;
     setShowModalSocio(false);
     setFormData({ nombre: '', dni: '', tel: '', plan: PLANES_MEMBRESIA[0] });
   };
 
-  const submitVenta = (e) => {
+  const submitVenta = async (e) => {
     e.preventDefault();
-    registrarVenta({
+    const res = await registrarVenta({
       concepto: `Venta: ${ventaData.cantidad}x ${ventaData.producto}`,
       monto: ventaData.monto * ventaData.cantidad,
       metodo: ventaData.metodo,
       tipo: 'ingreso',
     });
+    if (!res?.ok) return;
     setShowModalVenta(false);
   };
 

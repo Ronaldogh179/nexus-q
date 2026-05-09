@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGym } from '../context/GymContext';
+import { supabase } from '../lib/supabase';
 import {
   PieChart,
   Pie,
@@ -15,7 +16,44 @@ import {
 import { TrendingUp, Users, Activity, DollarSign } from 'lucide-react';
 
 const Metricas = () => {
-  const { socios, ventas, asistencias, theme, t } = useGym();
+  const { socios, asistencias, theme, t } = useGym();
+  const [ventasLive, setVentasLive] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const cargarVentas = async () => {
+      const { data, error } = await supabase
+        .from('ventas')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (cancelled) return;
+      if (error) {
+        console.error('[Metricas] Error cargando ventas:', error.message);
+        return;
+      }
+      setVentasLive(data ?? []);
+    };
+
+    void cargarVentas();
+
+    const channel = supabase
+      .channel('metricas-ventas-live')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ventas' },
+        () => {
+          void cargarVentas();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const tx = (key, fallback) => {
     const translated = t(key);
@@ -23,8 +61,8 @@ const Metricas = () => {
   };
 
   const totalIngresos = useMemo(
-    () => ventas.reduce((acc, venta) => acc + (Number(venta.monto) || 0), 0),
-    [ventas]
+    () => ventasLive.reduce((acc, venta) => acc + (Number(venta.monto) || 0), 0),
+    [ventasLive]
   );
 
   const sociosActivos = useMemo(
@@ -54,7 +92,7 @@ const Metricas = () => {
 
     const sumsByDay = new Map(labels.map((label) => [label, 0]));
 
-    (ventas ?? []).forEach((venta) => {
+    (ventasLive ?? []).forEach((venta) => {
       if ((venta.tipo ?? 'ingreso').toLowerCase() !== 'ingreso') return;
       const rawDate = venta.created_at ?? venta.fecha;
       if (!rawDate) return;
@@ -69,7 +107,7 @@ const Metricas = () => {
       label,
       ingresos: sumsByDay.get(label) ?? 0,
     }));
-  }, [ventas]);
+  }, [ventasLive]);
 
   const totalSocios = socios.length;
   const tasaRetencion = totalSocios

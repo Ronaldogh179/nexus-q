@@ -155,10 +155,10 @@ const Socios = () => {
     setShowModalEditar(true);
   }, []);
 
-  const submitNuevoSocio = (e) => {
+  const submitNuevoSocio = async (e) => {
     e.preventDefault();
     const calculoDias = getDiasByPlan(formData.plan);
-    agregarSocio({
+    const res = await agregarSocio({
       nombre: formData.nombre.trim(),
       dni: formData.dni.trim(),
       tel: formData.tel.trim(),
@@ -167,6 +167,7 @@ const Socios = () => {
       estado: 'Activo',
       dias: calculoDias,
     });
+    if (!res?.ok) return;
     closeNuevoModal();
   };
 

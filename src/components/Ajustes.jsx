@@ -118,7 +118,7 @@ const Ajustes = () => {
               <h2 className="text-xl font-bold text-white mb-6 border-b border-gray-800 pb-2">Perfil del Administrador</h2>
               
               <div className="flex items-center gap-6 mb-6">
-                <div className="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg">MA</div>
+                <div className="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg">RG</div>
                 <div>
                   <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-bold border border-gray-700 transition-colors mb-2">Cambiar Avatar</button>
                   <p className="text-xs text-gray-500">Formato JPG o PNG. Tamaño máximo 2MB.</p>
@@ -128,7 +128,7 @@ const Ajustes = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Nombre Completo</label>
-                  <input type="text" defaultValue="Miguel Angel" className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500" />
+                  <input type="text" defaultValue="Ronaldo Gonzales" className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Correo Electrónico (Login)</label>

@@ -69,7 +69,7 @@ const ControlAcceso = () => {
 
     const { data, error } = await supabase
       .from('asistencias')
-      .insert(payload)
+      .insert([payload])
       .select('*')
       .single();
 

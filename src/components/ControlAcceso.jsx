@@ -1,58 +1,108 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGym } from 'src/context/GymContext.jsx';
+import { useToast } from 'src/components/Toast.jsx';
+import { supabase } from 'src/lib/supabase.js';
 import {
   ShieldCheck, Search, UserCheck, UserX, Clock,
   QrCode, AlertTriangle, CheckCircle2, History, ArrowRight, Loader2,
 } from 'lucide-react';
 
 const ControlAcceso = () => {
-  const { socios, asistencias, realizarCheckIn, theme } = useGym();
+  const { socios, theme } = useGym();
+  const { addToast } = useToast();
 
   const [ingresoDNI, setIngresoDNI] = useState('');
   const [ultimoEscaneo, setUltimoEscaneo] = useState(null);
   const [procesando, setProcesando] = useState(false);
+  const [historialAccesos, setHistorialAccesos] = useState([]);
+
+  useEffect(() => {
+    const fetchHistorial = async () => {
+      const { data, error } = await supabase
+        .from('asistencias')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(20);
+
+      if (error) {
+        console.error('[ControlAcceso] Error cargando historial:', error.message);
+        return;
+      }
+
+      setHistorialAccesos(data ?? []);
+    };
+
+    void fetchHistorial();
+  }, []);
+
+  const historialSesion = useMemo(() => historialAccesos.slice(0, 10), [historialAccesos]);
 
   const registrarEntrada = async (e) => {
     e.preventDefault();
     if (!ingresoDNI.trim() || procesando) return;
 
     setProcesando(true);
-
-    const res = await realizarCheckIn(ingresoDNI.trim());
     const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const socio = socios.find((s) => String(s.dni ?? '').trim() === ingresoDNI.trim());
 
-    if (res.success) {
-      const dias = res.diasRestantes ?? res.socio?.dias ?? 0;
-      const motivoDisplay =
-        res.estadoAcceso === 'Permitido'
-          ? `Socio activo · ${dias} día${dias !== 1 ? 's' : ''} restante${dias !== 1 ? 's' : ''}`
-          : 'Membresía vencida — renovar plan';
-
-      setUltimoEscaneo({
-        nombre: res.socio.nombre,
-        plan: res.socio.plan,
-        avatar: res.socio.iniciales,
-        estado: res.estadoAcceso,
-        motivo: motivoDisplay,
-        hora,
-      });
-    } else {
+    if (!socio) {
       setUltimoEscaneo({
         nombre: 'DNI no registrado',
         plan: 'Verificar en módulo Socios',
         avatar: '?',
         estado: 'Denegado',
-        motivo: res.motivo ?? 'DNI no encontrado en el sistema',
+        motivo: 'DNI no encontrado en el sistema',
         hora,
       });
+      addToast({ message: 'DNI no encontrado en la base de socios.', type: 'error' });
+      setIngresoDNI('');
+      setProcesando(false);
+      return;
     }
+
+    const payload = {
+      socio_id: socio.id,
+      nombre: socio.nombre,
+      plan: socio.plan,
+      estado_acceso: 'Permitido',
+    };
+
+    const { data, error } = await supabase
+      .from('asistencias')
+      .insert(payload)
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('[ControlAcceso] Error registrando acceso:', error.message);
+      addToast({ message: `Error al registrar acceso: ${error.message}`, type: 'error' });
+      setUltimoEscaneo({
+        nombre: socio.nombre,
+        plan: socio.plan,
+        avatar: socio.iniciales,
+        estado: 'Denegado',
+        motivo: 'No se pudo registrar en Supabase',
+        hora,
+      });
+      setIngresoDNI('');
+      setProcesando(false);
+      return;
+    }
+
+    setHistorialAccesos((prev) => [data, ...prev.filter((x) => x.id !== data.id)]);
+    addToast({ message: `Acceso permitido para ${socio.nombre}.`, type: 'success' });
+    setUltimoEscaneo({
+      nombre: socio.nombre,
+      plan: socio.plan,
+      avatar: socio.iniciales,
+      estado: 'Permitido',
+      motivo: 'Acceso registrado correctamente',
+      hora,
+    });
 
     setIngresoDNI('');
     setProcesando(false);
   };
-
-  // Historial del contexto (asistencias de la sesión + las persistidas en Supabase)
-  const historialAccesos = asistencias.slice(0, 10);
 
   return (
     <div className="p-6 md:p-8 animate-in fade-in duration-500 bg-[#111827] min-h-[calc(100vh-64px)] flex flex-col">
@@ -161,12 +211,12 @@ const ControlAcceso = () => {
               <History className="text-blue-500" size={20} /> Historial de la Sesión
             </h2>
             <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-xs font-bold">
-              {historialAccesos.length} registros
+              {historialSesion.length} registros
             </span>
           </div>
 
           <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
-            {historialAccesos.length === 0 ? (
+            {historialSesion.length === 0 ? (
               <div className="p-12 text-center text-gray-500 opacity-40">
                 <History size={48} className="mx-auto mb-4" />
                 <p className="text-sm font-medium">Sin accesos registrados en esta sesión.</p>
@@ -182,40 +232,40 @@ const ControlAcceso = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800/50">
-                  {historialAccesos.map((acceso, idx) => (
+                  {historialSesion.map((acceso, idx) => (
                     <tr
                       key={acceso.id ?? idx}
                       className={`hover:bg-gray-800/40 transition-colors ${idx === 0 ? 'bg-blue-900/10' : ''}`}
                     >
                       <td className="p-4">
                         <span className="flex items-center gap-1.5 text-sm font-bold text-gray-400">
-                          <Clock size={14} /> {acceso.hora}
+                          <Clock size={14} /> {acceso.created_at ? new Date(acceso.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
                         </span>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-300">
-                            {acceso.avatar}
+                            {(acceso.nombre ?? '?').split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'}
                           </div>
                           <div>
-                            <p className="font-bold text-white text-sm">{acceso.nombre}</p>
-                            <p className="text-xs text-gray-500">{acceso.plan}</p>
+                            <p className="font-bold text-white text-sm">{acceso.nombre ?? '—'}</p>
+                            <p className="text-xs text-gray-500">{acceso.plan ?? '—'}</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-4 text-center">
                         <span
                           className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border
-                          ${acceso.estado === 'Permitido'
+                          ${(acceso.estado_acceso ?? acceso.estado) === 'Permitido'
                             ? 'bg-green-500/10 text-green-400 border-green-500/20'
                             : 'bg-red-500/10 text-red-400 border-red-500/20'}`}
                         >
-                          {acceso.estado === 'Permitido' ? <UserCheck size={14} /> : <UserX size={14} />}
-                          {acceso.estado}
+                          {(acceso.estado_acceso ?? acceso.estado) === 'Permitido' ? <UserCheck size={14} /> : <UserX size={14} />}
+                          {acceso.estado_acceso ?? acceso.estado ?? '—'}
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className="text-sm text-gray-300">{acceso.motivo ?? '—'}</span>
+                        <span className="text-sm text-gray-300">{acceso.motivo ?? 'Registro de acceso'}</span>
                       </td>
                     </tr>
                   ))}

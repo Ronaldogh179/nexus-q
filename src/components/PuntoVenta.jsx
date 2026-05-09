@@ -4,12 +4,13 @@ import { supabase } from 'src/lib/supabase.js';
 import { ShoppingCart, Search, Plus, Minus, Trash2, CreditCard, Banknote, User, Tag, ChevronRight } from 'lucide-react';
 
 const PuntoVenta = () => {
-  const { registrarVenta } = useGym();
+  const { registrarVenta, socios } = useGym();
   const [productosDb, setProductosDb] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('Efectivo');
+  const [socioIdSeleccionado, setSocioIdSeleccionado] = useState('');
   const formatSoles = (value) =>
     Number(value ?? 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -87,6 +88,7 @@ const PuntoVenta = () => {
       monto: total,
       metodo: metodoPago,
       tipo: 'ingreso',
+      socio_id: socioIdSeleccionado || null,
     });
     alert(`¡Venta registrada con éxito!\nTotal cobrado: S/ ${formatSoles(total)} en ${metodoPago}`);
     setCarrito([]); // Limpiar carrito
@@ -171,9 +173,20 @@ const PuntoVenta = () => {
           
           {/* Header Ticket (Cliente) */}
           <div className="p-4 border-b border-gray-800 bg-[#141b2d]/50 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-gray-300 bg-gray-800 px-3 py-1.5 rounded-lg w-full cursor-pointer hover:bg-gray-700 transition-colors">
+            <div className="flex items-center gap-2 text-gray-300 bg-gray-800 px-3 py-1.5 rounded-lg w-full">
               <User size={16} className="text-blue-400"/>
-              <span className="text-sm font-medium">Consumidor Final (Clic para asignar socio)</span>
+              <select
+                value={socioIdSeleccionado}
+                onChange={(e) => setSocioIdSeleccionado(e.target.value)}
+                className="w-full bg-transparent text-sm font-medium text-gray-300 outline-none"
+              >
+                <option value="" className="text-black">Consumidor Final</option>
+                {socios.map((socio) => (
+                  <option key={socio.id} value={socio.id} className="text-black">
+                    {socio.nombre} · DNI {socio.dni}
+                  </option>
+                ))}
+              </select>
               <ChevronRight size={16} className="ml-auto text-gray-500" />
             </div>
           </div>

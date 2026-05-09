@@ -134,7 +134,10 @@ export const GymProvider = ({ children }) => {
         { event: '*', schema: 'public', table: 'ventas' },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setVentas((prev) => [payload.new, ...prev]);
+            setVentas((prev) => {
+              if (prev.some((v) => v.id === payload.new.id)) return prev;
+              return [payload.new, ...prev];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setVentas((prev) =>
               prev.map((v) => (v.id === payload.new.id ? payload.new : v))
@@ -146,9 +149,32 @@ export const GymProvider = ({ children }) => {
       )
       .subscribe();
 
+    const asistenciasChannel = supabase
+      .channel('asistencias-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'asistencias' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setAsistencias((prev) => {
+              if (prev.some((a) => a.id === payload.new.id)) return prev;
+              return [payload.new, ...prev];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            setAsistencias((prev) =>
+              prev.map((a) => (a.id === payload.new.id ? payload.new : a))
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setAsistencias((prev) => prev.filter((a) => a.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(sociosChannel);
       supabase.removeChannel(ventasChannel);
+      supabase.removeChannel(asistenciasChannel);
     };
   }, []);
 
@@ -255,6 +281,7 @@ export const GymProvider = ({ children }) => {
       monto: v.monto,
       metodo: v.metodo,
       tipo: v.tipo || 'ingreso',
+      socio_id: v.socio_id ?? null,
     };
 
     const { error } = await supabase.from('ventas').insert(ventaPayload);

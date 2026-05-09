@@ -124,8 +124,8 @@ function AppContent() {
                 )}
               </div>
               <div className={`flex items-center gap-3 pl-4 border-l ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}>
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold shadow-md">MV</div>
-                <span className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Miguel Angel</span>
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold shadow-md">RG</div>
+                <span className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Ronaldo Gonzales</span>
               </div>
             </div>
           </header>

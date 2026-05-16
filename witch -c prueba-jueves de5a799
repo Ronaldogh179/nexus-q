@@ -1,0 +1,43 @@
+[33m688a998[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Fri May 15 21:03:24 2026}: commit: feat: estructurar componentes core del MVP, integración de Supabase y plan de pruebas
+[33mde5a799[m HEAD@{Sat May 9 07:13:41 2026}: commit: feat: panel dinamico, alertas reales y pestaña nexus-ai
+[33mca2275b[m HEAD@{Sat May 9 06:47:19 2026}: commit: fix: persistencia total de ventas, asistencias y personalizacion de perfil
+[33mb47b985[m HEAD@{Sat May 9 02:27:19 2026}: commit: feat: conexion final POS, Asistencias y perfil de Ronaldo
+[33md54dc51[m HEAD@{Sat May 9 02:16:14 2026}: commit: ui: limpieza de pestañas y localizacion soles peru
+[33maf801e2[m HEAD@{Sat May 9 01:53:36 2026}: commit: ui: limpieza de pestañas y localizacion soles peru
+[33mc63cee4[m HEAD@{Sat May 9 00:57:23 2026}: reset: moving to c63cee4
+[33md1596c1[m HEAD@{Sat May 9 00:55:50 2026}: reset: moving to HEAD
+[33md1596c1[m HEAD@{Sat May 9 00:12:13 2026}: commit: fix: conexion directa a supabase y purga de api antigua
+[33m70f0fb1[m HEAD@{Fri May 8 23:17:21 2026}: commit: fix: sync total de esquemas y llaves
+[33m6988652[m HEAD@{Fri May 8 23:10:33 2026}: commit: fix: total sync
+[33me97cc10[m HEAD@{Fri May 8 22:14:56 2026}: commit: fix: actualizar llaves de supabase v2 y nombres de columnas
+[33m9fa6a08[m HEAD@{Fri May 8 19:46:17 2026}: commit: fix: mapeo final de columnas para demo
+[33m98711ea[m HEAD@{Fri May 8 18:40:40 2026}: commit: fix: correccion final de nombres y permisos para demo
+[33mb230e87[m HEAD@{Fri May 8 18:30:55 2026}: commit: feat: modo demo y correccion de fechas para presentacion
+[33me65e682[m HEAD@{Thu May 7 13:30:19 2026}: commit: fix: restore data visibility and robust date filtering
+[33mf4bbc30[m HEAD@{Thu May 7 13:25:04 2026}: commit: perf: parallel data fetching and database indexing
+[33m2f2b7d4[m HEAD@{Thu May 7 13:17:03 2026}: commit: feat: finalize AI integration and environment setup
+[33mbff915c[m HEAD@{Thu May 7 12:54:18 2026}: commit: fix: implementation of atomic and instant logout
+[33mb25a730[m HEAD@{Thu May 7 12:50:10 2026}: commit: fix: total rewrite of auth logic for persistence and speed
+[33maba1467[m HEAD@{Thu May 7 12:43:36 2026}: commit: fix: force dashboard redirect and add login timeouts
+[33m1ae966f[m HEAD@{Thu May 7 12:39:33 2026}: commit: feat: fixes and final optimizations for Nexus-Q
+[33m3747837[m HEAD@{Thu May 7 12:32:05 2026}: commit: fix: implementation of persistent session and robust route protection
+[33m6ecf5d6[m HEAD@{Thu May 7 12:26:07 2026}: commit: data: seed products and switch to real database fetch
+[33mef39eae[m HEAD@{Thu May 7 12:21:22 2026}: commit: data: seed products and switch to real database fetch
+[33m863ed02[m HEAD@{Thu May 7 12:16:04 2026}: commit: database: create products table and final module cleanup
+[33m40ddc58[m HEAD@{Thu May 7 12:12:06 2026}: commit: feat: inventory management, POS integration and module cleanup
+[33mcd235d8[m HEAD@{Thu May 7 11:59:40 2026}: commit: feat: global and dynamic membership expiration logic
+[33m0f07033[m HEAD@{Thu May 7 11:45:05 2026}: commit: fix: add updated_at column and robust profile handling
+[33mb5b2544[m HEAD@{Thu May 7 11:39:41 2026}: commit: refactor: functional and visual cleanup of core modules
+[33m41fac8c[m HEAD@{Wed May 6 22:39:42 2026}: commit: feat: implement robust and forced logout in header
+[33maab86d5[m HEAD@{Wed May 6 22:29:37 2026}: commit: fix: master access and forced role for admin
+[33m4fc881b[m HEAD@{Wed May 6 22:18:29 2026}: commit: fix: force loading to false in finally block
+[33m14e4305[m HEAD@{Wed May 6 22:12:07 2026}: commit: fix: nuclear logout button to break infinite loading
+[33md6fec73[m HEAD@{Wed May 6 22:05:41 2026}: commit: feat: activar registro de administradores y nombre dinámico
+[33m8b68cf4[m HEAD@{Wed May 6 21:46:08 2026}: commit: fix: add vercel config to handle SPA routing
+[33ma701336[m HEAD@{Wed May 6 21:35:04 2026}: commit: fix(auth): implement session watchdog and rescue button
+[33m78b8137[m HEAD@{Wed May 6 21:06:58 2026}: commit: ux(auth): add rescue logout and session watchdog
+[33md048048[m HEAD@{Wed May 6 20:46:17 2026}: commit: feat: perfil persistente en profiles, header dinámico y AdminManagement con signUp aislado
+[33m23deff2[m HEAD@{Wed May 6 20:35:55 2026}: commit: feat: Login y Seguridad RLS configurados al 100%
+[33mc63cee4[m HEAD@{Fri May 1 14:54:37 2026}: commit: Refactor: Sistema optimizado para entorno administrativo de escritorio y limpieza de dependencias
+[33m6eb3a3a[m HEAD@{Fri May 1 14:51:22 2026}: commit: Refactor: Sistema optimizado para entorno administrativo de escritorio (Nexus-Q v1.0)
+[33m5801f1b[m HEAD@{Fri May 1 13:27:06 2026}: commit (initial): Nexus-Q: Versión Final Profesional

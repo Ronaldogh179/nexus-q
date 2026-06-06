@@ -3,7 +3,7 @@ import { useGym } from '../context/GymContext';
 import { Bot, Loader2, Sparkles, TrendingUp, Users, AlertTriangle } from 'lucide-react';
 
 const GEMINI_ENDPOINT =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 async function generarReporte(ingresos, activos, vencidos) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useGym } from '../context/GymContext';
 import { 
   LayoutDashboard, Users, Tags,
-  Package, ShoppingCart, Wallet, FileText, ShieldCheck,
-  CreditCard, Settings, ChevronDown, ChevronRight,
+  Wallet, ShieldCheck,
+  Settings, ChevronDown, ChevronRight,
   UserCheck, Activity, BellRing, RotateCcw, MessageSquare, ChevronLeft, Bot
 } from 'lucide-react';
 
@@ -88,17 +88,13 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
         {/* RESTO DE SECCIONES PRINCIPALES */}
         <div className={`pt-2 mt-2 border-t ${theme === 'dark' ? 'border-slate-700/60' : 'border-slate-200'}`}>
           <button onClick={() => setActiveTab('planes')} className={navBtnClasses('planes')}><Tags size={18} /><span>Planes</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
-          <button onClick={() => setActiveTab('productos')} className={navBtnClasses('productos')}><Package size={18} /><span>Productos</span></button>
-          <button onClick={() => setActiveTab('puntoventa')} className={navBtnClasses('puntoventa')}><ShoppingCart size={18} /><span>Punto de Venta</span></button>
           <button onClick={() => setActiveTab('caja')} className={navBtnClasses('caja')}><Wallet size={18} /><span>Caja</span></button>
-          <button onClick={() => setActiveTab('facturacion')} className={navBtnClasses('facturacion')}><FileText size={18} /><span>Facturación</span></button>
           <button onClick={() => setActiveTab('controlacceso')} className={navBtnClasses('controlacceso')}><ShieldCheck size={18} /><span>Control de Acceso</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
         </div>
       </nav>
 
       {/* FOOTER SIDEBAR */}
       <div className={`border-t py-2 ${theme === 'dark' ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-slate-50'}`}>
-        <button onClick={() => setActiveTab('pagos')} className={navBtnClasses('pagos')}><CreditCard size={18} className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}/><span>Pagos</span></button>
         <button onClick={() => setActiveTab('ajustes')} className={navBtnClasses('ajustes')}><Settings size={18} className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}/><span>Ajustes</span><ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}/></button>
       </div>
 

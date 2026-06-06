@@ -42,7 +42,6 @@ export const GymProvider = ({ children }) => {
   // ── Estado principal de datos ─────────────────────────────────────────────
   const [socios, setSocios] = useState([]);
   const [ventas, setVentas] = useState([]);
-  const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(null);
 
@@ -77,23 +76,19 @@ export const GymProvider = ({ children }) => {
         const [
           { data: sociosData, error: sociosErr },
           { data: ventasData, error: ventasErr },
-          { data: productosData, error: productosErr },
           { data: asistenciasData, error: asistenciasErr },
         ] = await Promise.all([
           supabase.from('socios').select('*').order('id', { ascending: false }),
           supabase.from('ventas').select('*').order('id', { ascending: false }),
-          supabase.from('productos').select('*').order('id', { ascending: false }),
           supabase.from('asistencias').select('*').order('id', { ascending: false }),
         ]);
 
         if (sociosErr) throw sociosErr;
         if (ventasErr) throw ventasErr;
-        if (productosErr) throw productosErr;
         if (asistenciasErr) throw asistenciasErr;
 
         setSocios((sociosData || []).map(mapSocio));
         setVentas(ventasData || []);
-        setProductos(productosData || []);
         setAsistencias(asistenciasData || []);
       } catch (err) {
         console.error('[Nexus-Q] Error cargando datos de Supabase:', err.message);
@@ -693,7 +688,6 @@ export const GymProvider = ({ children }) => {
         // Datos
         socios,
         ventas,
-        productos,
         asistencias,
         rutinas,
         planes,

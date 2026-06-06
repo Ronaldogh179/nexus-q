@@ -10,12 +10,8 @@ import AlertasInactividad from './components/AlertasInactividad';
 import Reactivacion from './components/Reactivacion';
 import Mensajes from './components/Mensajes';
 import Planes from './components/Planes';
-import Productos from './components/Productos';
-import PuntoVenta from './components/PuntoVenta';
 import Caja from './components/Caja';
-import Facturacion from './components/Facturacion';
 import ControlAcceso from './components/ControlAcceso';
-import Pagos from './components/Pagos';
 import Ajustes from './components/Ajustes';
 import NexusAI from './components/NexusAI';
 import { Menu, Bell, Sun, Moon, Globe } from 'lucide-react';
@@ -36,7 +32,7 @@ function AppContent() {
 
   useEffect(() => {
     const testSupabaseConnection = async () => {
-      const tables = ['socios', 'productos', 'ventas', 'asistencias'];
+      const tables = ['socios', 'ventas', 'asistencias'];
       const checks = await Promise.all(
         tables.map(async (table) => {
           const { error } = await supabase.from(table).select('id', { head: true, count: 'exact' });
@@ -63,12 +59,8 @@ function AppContent() {
       case 'reactivacion': return <Reactivacion />;
       case 'mensajes': return <Mensajes />;
       case 'planes': return <Planes />;
-      case 'productos': return <Productos />;
-      case 'puntoventa': return <PuntoVenta />;
       case 'caja': return <Caja />;
-      case 'facturacion': return <Facturacion />;
       case 'controlacceso': return <ControlAcceso />;
-      case 'pagos': return <Pagos />;
       case 'ajustes': return <Ajustes />;
       case 'nexusai': return <NexusAI />;
       default: return <Dashboard />;

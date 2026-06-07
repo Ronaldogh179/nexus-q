@@ -1,16 +1,21 @@
-# React + Vite
+# Nexus-Q – Sistema de Gestión para Gimnasios v1.0
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma SaaS (Software as a Service) moderna y eficiente para la digitalización, control financiero y administración integral de centros fitness en tiempo real.
 
-Currently, two official plugins are available:
+## 🚀 Características Principales
+* **Módulo de Autenticación:** Control de acceso restringido para personal autorizado mediante validación de seguridad de tokens JWT.
+* **Gestión de Socios:** Control completo del ciclo de vida de los miembros (altas, bajas, modificaciones) y automatización en el monitoreo de estados y vencimientos de membresías.
+* **Control de Caja:** Registro cronológico de transacciones financieras (ingresos y egresos) con cálculo inmediato del balance neto del negocio.
+* **Control de Acceso:** Sistema de check-in mediante validación de DNI para el registro inmediato de asistencias en la nube.
+* **Nexus-AI (Asistente Gerencial Inteligente):** Integración con el motor avanzado de Inteligencia Artificial de Google Gemini para procesar los KPIs del día y generar análisis estratégicos automáticos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Pila Tecnológica (Stack)
+* **Frontend:** React 19, Vite 8, Tailwind CSS 4, React Router DOM 7, Recharts.
+* **Capa Backend y Persistencia:** Plataforma Supabase (Motor relacional PostgreSQL gestionado en la nube).
+* **Capa de Inteligencia Artificial:** API REST de Google Gemini (Modelo de producción `gemini-2.5-flash`).
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 💻 Instrucciones de Instalación Local
+1. Clonar el repositorio localmente.
+2. Instalar las dependencias de producción ejecutando en la terminal:
+   ```bash
+   npm install

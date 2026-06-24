@@ -157,7 +157,7 @@ const Planes = () => {
               </div>
 
               <div className="p-6 flex-1">
-                <p className={`text-xs font-bold uppercase tracking-wider mb-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-4 text-slate-500">
                   {t('planFeatures')}
                 </p>
                 <ul className="space-y-3">
@@ -192,8 +192,9 @@ const Planes = () => {
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Nombre</label>
+                <label htmlFor="plan-nombre" className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Nombre</label>
                 <input
+                  id="plan-nombre"
                   type="text"
                   required
                   value={formData.nombre}
@@ -205,8 +206,9 @@ const Planes = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Precio (S/)</label>
+                  <label htmlFor="plan-precio" className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Precio (S/)</label>
                   <input
+                    id="plan-precio"
                     type="number"
                     min="0"
                     required
@@ -218,8 +220,9 @@ const Planes = () => {
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('planDuration')}</label>
+                  <label htmlFor="plan-duracion" className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('planDuration')}</label>
                   <select
+                    id="plan-duracion"
                     value={formData.duracion}
                     onChange={(e) => setFormData((prev) => ({ ...prev, duracion: e.target.value }))}
                     className={`w-full border rounded-lg p-3 focus:outline-none focus:border-blue-500 ${
@@ -234,8 +237,9 @@ const Planes = () => {
                 </div>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Estado</label>
+                <label htmlFor="plan-estado" className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Estado</label>
                 <select
+                  id="plan-estado"
                   value={formData.estado}
                   onChange={(e) => setFormData((prev) => ({ ...prev, estado: e.target.value }))}
                   className={`w-full border rounded-lg p-3 focus:outline-none focus:border-blue-500 ${
@@ -247,10 +251,11 @@ const Planes = () => {
                 </select>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                <label htmlFor="plan-features" className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                   {t('planFeatures')}
                 </label>
                 <textarea
+                  id="plan-features"
                   rows={3}
                   value={featuresText}
                   onChange={(e) => setFeaturesText(e.target.value)}

@@ -691,7 +691,7 @@ export const GymProvider = ({ children }) => {
       const fv = s.fecha_venc ?? s.fechaVenc;
       if (fv && fv !== '—') {
         const d = new Date(fv);
-        return !isNaN(d.getTime()) && d < hoy;
+        return !Number.isNaN(d.getTime()) && d < hoy;
       }
       return false;
     };
@@ -768,7 +768,7 @@ export const GymProvider = ({ children }) => {
         notifs.push(`${nombre} tiene la membresía vencida`);
       } else if (fv && fv !== '—') {
         const d = new Date(fv);
-        if (!isNaN(d.getTime())) {
+        if (!Number.isNaN(d.getTime())) {
           const diffDays = Math.ceil((d.getTime() - hoy.getTime()) / 86_400_000);
           if (diffDays === 0) notifs.push(`${nombre} vence hoy`);
           else if (diffDays === 1) notifs.push(`${nombre} vence mañana`);

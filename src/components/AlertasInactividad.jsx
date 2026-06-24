@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { useGym } from '../context/GymContext';
 import { AlertTriangle, BellRing, MessageCircle, CalendarX } from 'lucide-react';
 
@@ -19,7 +20,7 @@ const AlertasInactividad = () => {
         const fv = s.fecha_venc ?? s.fechaVenc;
         if (fv && fv !== '—') {
           const d = new Date(fv);
-          return !isNaN(d.getTime()) && d < hoy;
+          return !Number.isNaN(d.getTime()) && d < hoy;
         }
         return false;
       })
@@ -28,7 +29,7 @@ const AlertasInactividad = () => {
         let diasVencido = 0;
         if (fv && fv !== '—') {
           const d = new Date(fv);
-          if (!isNaN(d.getTime())) {
+          if (!Number.isNaN(d.getTime())) {
             diasVencido = Math.max(0, Math.floor((hoy - d) / 86_400_000));
           }
         }
@@ -54,7 +55,7 @@ const AlertasInactividad = () => {
   const formatFecha = (fv) => {
     if (!fv || fv === '—') return '—';
     const d = new Date(fv);
-    if (isNaN(d.getTime())) return fv;
+    if (Number.isNaN(d.getTime())) return fv;
     return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
@@ -216,6 +217,15 @@ const KpiCard = ({ title, value, subtitle, icon: Icon, theme, danger = false }) 
   </div>
 );
 
+KpiCard.propTypes = {
+  title:    PropTypes.string.isRequired,
+  value:    PropTypes.number.isRequired,
+  subtitle: PropTypes.string.isRequired,
+  icon:     PropTypes.elementType.isRequired,
+  theme:    PropTypes.string.isRequired,
+  danger:   PropTypes.bool,
+};
+
 const RiskBadge = ({ riesgo }) => {
   if (riesgo === 'alto') {
     return (
@@ -236,6 +246,10 @@ const RiskBadge = ({ riesgo }) => {
       Reciente
     </span>
   );
+};
+
+RiskBadge.propTypes = {
+  riesgo: PropTypes.string.isRequired,
 };
 
 export default AlertasInactividad;

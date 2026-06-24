@@ -587,10 +587,11 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
       <form onSubmit={onSubmit} className="p-6 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <label className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <label htmlFor="soc-nombre" className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
               {t('fullName')}
             </label>
             <input
+              id="soc-nombre"
               required
               type="text"
               placeholder="Ej. Ana García"
@@ -602,10 +603,11 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
             />
           </div>
           <div>
-            <label className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <label htmlFor="soc-dni" className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
               DNI
             </label>
             <input
+              id="soc-dni"
               required
               type="text"
               placeholder="Sin puntos"
@@ -617,10 +619,11 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
             />
           </div>
           <div>
-            <label className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <label htmlFor="soc-tel" className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
               {t('phone')}
             </label>
             <input
+              id="soc-tel"
               required
               type="text"
               placeholder="+54 9 ..."
@@ -632,10 +635,11 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
             />
           </div>
           <div className="sm:col-span-2">
-            <label className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <label htmlFor="soc-mail" className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
               {t('email')}
             </label>
             <input
+              id="soc-mail"
               type="email"
               placeholder="correo@ejemplo.com"
               value={formData.mail}
@@ -646,12 +650,13 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
             />
           </div>
           <div className="sm:col-span-2">
-            <label className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <label htmlFor="soc-plan" className={`block text-[11px] font-bold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
               {t('selectedPlan')}
             </label>
             <div className="relative">
               <CreditCard className={`absolute left-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} size={16} />
               <select
+                id="soc-plan"
                 required
                 value={formData.plan}
                 onChange={(e) => setFormData({ ...formData, plan: e.target.value })}

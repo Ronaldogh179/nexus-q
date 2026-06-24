@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   Dumbbell, Search, Plus, X, Save, ChevronDown,
   CheckCircle2, Loader2, ClipboardList, Layers,
@@ -83,6 +84,19 @@ const FilaEjercicio = ({ ejercicio, idx, onChange, onRemove, disabled }) => (
     </button>
   </div>
 );
+
+FilaEjercicio.propTypes = {
+  ejercicio: PropTypes.shape({
+    id:     PropTypes.string.isRequired,
+    nombre: PropTypes.string.isRequired,
+    series: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    reps:   PropTypes.string.isRequired,
+  }).isRequired,
+  idx:      PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired,
+};
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 

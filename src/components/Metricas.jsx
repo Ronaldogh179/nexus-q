@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useGym } from '../context/GymContext';
 import { supabase } from '../lib/supabase';
 import {
@@ -27,6 +28,12 @@ const CustomLineTooltip = ({ active, payload, label }) => {
   );
 };
 
+CustomLineTooltip.propTypes = {
+  active:  PropTypes.bool,
+  payload: PropTypes.arrayOf(PropTypes.shape({ value: PropTypes.number })),
+  label:   PropTypes.string,
+};
+
 // ─── Tooltip para Donut ───────────────────────────────────────────────────────
 const CustomPieTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
@@ -38,6 +45,17 @@ const CustomPieTooltip = ({ active, payload }) => {
       </p>
     </div>
   );
+};
+
+CustomPieTooltip.propTypes = {
+  active:  PropTypes.bool,
+  payload: PropTypes.arrayOf(
+    PropTypes.shape({
+      name:    PropTypes.string,
+      value:   PropTypes.number,
+      payload: PropTypes.shape({ fill: PropTypes.string }),
+    })
+  ),
 };
 
 // ─── Datos demo (se usan cuando la BD está vacía) ─────────────────────────────
@@ -125,7 +143,7 @@ const Metricas = () => {
         .filter((v) => {
           if ((v.tipo ?? 'ingreso').toLowerCase() !== 'ingreso') return false;
           const fd = new Date(v.created_at ?? v.fecha ?? '');
-          return !isNaN(fd.getTime()) && fd.getFullYear() === yr && fd.getMonth() === mo;
+          return !Number.isNaN(fd.getTime()) && fd.getFullYear() === yr && fd.getMonth() === mo;
         })
         .reduce((acc, v) => acc + Number(v.monto ?? 0), 0);
       return { mes, ingresos: total };
@@ -403,5 +421,22 @@ const Stat = ({ label, value, color }) => (
     <p className="text-xs text-gray-500 font-semibold mt-0.5">{label}</p>
   </div>
 );
+
+KpiCard.propTypes = {
+  title:  PropTypes.string.isRequired,
+  value:  PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sub:    PropTypes.string,
+  icon:   PropTypes.elementType.isRequired,
+  accent: PropTypes.string.isRequired,
+  bg:     PropTypes.string.isRequired,
+  border: PropTypes.string.isRequired,
+  theme:  PropTypes.string.isRequired,
+};
+
+Stat.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  color: PropTypes.string.isRequired,
+};
 
 export default Metricas;

@@ -29,7 +29,7 @@ const imcLabel = (imc) => {
 const fmtFecha = (iso) => {
   if (!iso) return '—';
   const d = new Date(iso + 'T00:00:00');
-  return isNaN(d) ? iso : d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 // ─── Datos demo (se muestran cuando el socio no tiene registros reales) ────────

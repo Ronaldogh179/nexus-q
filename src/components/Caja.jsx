@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { useGym } from 'src/context/GymContext.jsx';
 import {
   Wallet, TrendingUp, TrendingDown, DollarSign,
@@ -84,6 +85,14 @@ const EstadoBadge = ({ estado }) => {
       {estado}
     </span>
   );
+};
+
+MetodoBadge.propTypes = {
+  metodo: PropTypes.string.isRequired,
+};
+
+EstadoBadge.propTypes = {
+  estado: PropTypes.string.isRequired,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

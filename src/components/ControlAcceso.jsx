@@ -13,7 +13,7 @@ import MembershipModal from './MembershipModal';
 const diasRestantes = (fechaVenc) => {
   if (!fechaVenc || fechaVenc === '—') return null;
   const fv = new Date(fechaVenc);
-  if (isNaN(fv.getTime())) return null;
+  if (Number.isNaN(fv.getTime())) return null;
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   return Math.ceil((fv.getTime() - hoy.getTime()) / 86_400_000);
@@ -72,7 +72,7 @@ const ControlAcceso = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     const fv = socio.fecha_venc ?? socio.fechaVenc;
-    const fechaVencida = fv && fv !== '—' && !isNaN(new Date(fv).getTime()) && new Date(fv) < hoy;
+    const fechaVencida = fv && fv !== '—' && !Number.isNaN(new Date(fv).getTime()) && new Date(fv) < hoy;
     const membresiaVencida = socio.estado === 'Vencida' || socio.estado === 'Vencido' || fechaVencida;
 
     const estadoAcceso = membresiaVencida ? 'Denegado' : 'Permitido';

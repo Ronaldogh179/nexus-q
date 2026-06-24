@@ -156,8 +156,9 @@ const Ajustes = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Nombre Comercial</label>
+                  <label htmlFor="gym-nombre" className="block text-sm font-medium text-gray-400 mb-1.5">Nombre Comercial</label>
                   <input
+                    id="gym-nombre"
                     type="text"
                     value={gymConfig.nombre}
                     onChange={(e) => setGymConfig({ ...gymConfig, nombre: e.target.value })}
@@ -165,8 +166,9 @@ const Ajustes = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Teléfono de Contacto</label>
+                  <label htmlFor="gym-telefono" className="block text-sm font-medium text-gray-400 mb-1.5">Teléfono de Contacto</label>
                   <input
+                    id="gym-telefono"
                     type="text"
                     value={gymConfig.telefono}
                     onChange={(e) => setGymConfig({ ...gymConfig, telefono: e.target.value })}
@@ -174,8 +176,9 @@ const Ajustes = () => {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Dirección Física</label>
+                  <label htmlFor="gym-direccion" className="block text-sm font-medium text-gray-400 mb-1.5">Dirección Física</label>
                   <input
+                    id="gym-direccion"
                     type="text"
                     value={gymConfig.direccion}
                     onChange={(e) => setGymConfig({ ...gymConfig, direccion: e.target.value })}
@@ -183,10 +186,11 @@ const Ajustes = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-1">
+                  <label htmlFor="gym-idioma" className="text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-1">
                     <Globe size={14}/> Idioma del Sistema
                   </label>
                   <select
+                    id="gym-idioma"
                     value={gymConfig.idioma}
                     onChange={(e) => setGymConfig({ ...gymConfig, idioma: e.target.value })}
                     className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
@@ -197,8 +201,9 @@ const Ajustes = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Moneda Base</label>
+                  <label htmlFor="gym-moneda" className="block text-sm font-medium text-gray-400 mb-1.5">Moneda Base</label>
                   <select
+                    id="gym-moneda"
                     value={gymConfig.moneda}
                     onChange={(e) => setGymConfig({ ...gymConfig, moneda: e.target.value })}
                     className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
@@ -229,8 +234,9 @@ const Ajustes = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Nombre Completo</label>
+                  <label htmlFor="perfil-nombre" className="block text-sm font-medium text-gray-400 mb-1.5">Nombre Completo</label>
                   <input
+                    id="perfil-nombre"
                     type="text"
                     value={perfilNombre}
                     onChange={(e) => setPerfilNombre(e.target.value)}
@@ -239,8 +245,9 @@ const Ajustes = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Correo Electrónico (Login)</label>
+                  <label htmlFor="perfil-email" className="block text-sm font-medium text-gray-400 mb-1.5">Correo Electrónico (Login)</label>
                   <input
+                    id="perfil-email"
                     type="email"
                     value={userEmail}
                     readOnly

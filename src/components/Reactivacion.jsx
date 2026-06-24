@@ -8,7 +8,7 @@ import CheckoutMP from './CheckoutMP';
 const formatFecha = (fv) => {
   if (!fv || fv === '—') return '—';
   const d = new Date(fv);
-  if (isNaN(d.getTime())) return fv;
+  if (Number.isNaN(d.getTime())) return fv;
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
@@ -16,7 +16,7 @@ const formatFecha = (fv) => {
 const diasDesde = (fv) => {
   if (!fv || fv === '—') return 0;
   const d = new Date(fv);
-  if (isNaN(d.getTime())) return 0;
+  if (Number.isNaN(d.getTime())) return 0;
   return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86_400_000));
 };
 
@@ -39,7 +39,7 @@ const Reactivacion = () => {
         const fv = s.fecha_venc ?? s.fechaVenc;
         if (fv && fv !== '—') {
           const d = new Date(fv);
-          return !isNaN(d.getTime()) && d < hoy;
+          return !Number.isNaN(d.getTime()) && d < hoy;
         }
         return false;
       })

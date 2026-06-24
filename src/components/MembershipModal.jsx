@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { X, Calculator, Loader2 } from 'lucide-react';
 import { useGym } from '../context/GymContext';
 import { useToast } from './Toast';
@@ -88,8 +89,9 @@ const MembershipModal = ({ closeModal }) => {
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1.5">Seleccionar Plan</label>
+              <label htmlFor="mm-plan" className="block text-sm font-medium text-gray-400 mb-1.5">Seleccionar Plan</label>
               <select
+                id="mm-plan"
                 value={planSeleccionado?.id ?? ''}
                 onChange={handlePlanChange}
                 className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
@@ -102,8 +104,9 @@ const MembershipModal = ({ closeModal }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1.5">Fecha de Inicio</label>
+              <label htmlFor="mm-fecha-inicio" className="block text-sm font-medium text-gray-400 mb-1.5">Fecha de Inicio</label>
               <input
+                id="mm-fecha-inicio"
                 type="date"
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
@@ -114,8 +117,9 @@ const MembershipModal = ({ closeModal }) => {
 
           <div className="grid grid-cols-3 gap-4 border-t border-gray-700 pt-5">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1.5">Descuento (S/)</label>
+              <label htmlFor="mm-descuento" className="block text-sm font-medium text-gray-400 mb-1.5">Descuento (S/)</label>
               <input
+                id="mm-descuento"
                 type="number"
                 min="0"
                 value={descuento}
@@ -182,6 +186,10 @@ const MembershipModal = ({ closeModal }) => {
       </div>
     </div>
   );
+};
+
+MembershipModal.propTypes = {
+  closeModal: PropTypes.func.isRequired,
 };
 
 export default MembershipModal;

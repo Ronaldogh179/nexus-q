@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useGym } from 'src/context/GymContext.jsx';
 import { 
   UserPlus, ShoppingCart, CheckSquare, MessageCircle, 
@@ -57,7 +58,7 @@ const Dashboard = () => {
     const fv = s.fechaVenc ?? s.fecha_venc;
     if (fv && fv !== '—') {
       const d = new Date(fv);
-      return !isNaN(d.getTime()) && d < hoy;
+      return !Number.isNaN(d.getTime()) && d < hoy;
     }
     return false;
   };
@@ -200,7 +201,7 @@ const Dashboard = () => {
 
           <div className="p-2">
             {currentView.data.length === 0 ? (
-              <div className={`p-12 text-center text-sm font-medium italic ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>No hay socios en esta categoría actualmente.</div>
+              <div className="p-12 text-center text-sm font-medium italic text-slate-500">No hay socios en esta categoría actualmente.</div>
             ) : (
               currentView.data.map((socio) => (
                 <div key={socio.id} className={`flex flex-col md:flex-row items-center justify-between p-4 rounded-xl transition-colors border-b last:border-0 gap-4 ${theme === 'dark' ? 'hover:bg-slate-700/40 border-slate-700/50' : 'hover:bg-slate-100 border-slate-200'}`}>
@@ -216,7 +217,7 @@ const Dashboard = () => {
                         <p className={`text-sm font-bold text-${currentView.color}-400 uppercase`}>
                             {socio.estado === 'Vencida' ? 'Vencida' : `Vence en ${socio.dias} días`}
                         </p>
-                        <p className={`text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>Fecha: {socio.fechaVenc}</p>
+                        <p className="text-xs text-slate-500">Fecha: {socio.fechaVenc}</p>
                     </div>
                     {socio.estado !== 'Activo' || socio.dias <= 7 ? (
                       <button onClick={() => handleWhatsApp(socio)} className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white border border-emerald-500/30 px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-all"><MessageCircle size={18} /> Recordatorio</button>
@@ -239,10 +240,10 @@ const Dashboard = () => {
             </div>
             <form onSubmit={submitSocio} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2"><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('fullName')}</label><input type="text" required placeholder="Ej. Juan Pérez" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.nombre} onChange={e=>setFormData({...formData, nombre:e.target.value})} /></div>
-                <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>DNI</label><input type="text" required placeholder="12345678" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.dni} onChange={e=>setFormData({...formData, dni:e.target.value})} /></div>
-                <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('phone')}</label><input type="text" required placeholder="11 2233 4455" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.tel} onChange={e=>setFormData({...formData, tel:e.target.value})} /></div>
-                <div className="col-span-2"><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('selectedPlan')}</label><select className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.plan} onChange={e=>setFormData({...formData, plan:e.target.value})}>{PLANES_MEMBRESIA.map((plan) => <option key={plan}>{plan}</option>)}</select></div>
+                <div className="col-span-2"><label htmlFor="dash-nombre" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('fullName')}</label><input id="dash-nombre" type="text" required placeholder="Ej. Juan Pérez" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.nombre} onChange={e=>setFormData({...formData, nombre:e.target.value})} /></div>
+                <div><label htmlFor="dash-dni" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>DNI</label><input id="dash-dni" type="text" required placeholder="12345678" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.dni} onChange={e=>setFormData({...formData, dni:e.target.value})} /></div>
+                <div><label htmlFor="dash-tel" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('phone')}</label><input id="dash-tel" type="text" required placeholder="11 2233 4455" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.tel} onChange={e=>setFormData({...formData, tel:e.target.value})} /></div>
+                <div className="col-span-2"><label htmlFor="dash-plan" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('selectedPlan')}</label><select id="dash-plan" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={formData.plan} onChange={e=>setFormData({...formData, plan:e.target.value})}>{PLANES_MEMBRESIA.map((plan) => <option key={plan}>{plan}</option>)}</select></div>
               </div>
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white mt-4 transition-all">{t('saveAndEnroll')}</button>
             </form>
@@ -259,10 +260,10 @@ const Dashboard = () => {
               <button onClick={() => setShowModalVenta(false)} className={`${theme === 'dark' ? 'text-slate-400 hover:text-white bg-slate-700' : 'text-slate-500 hover:text-slate-800 bg-slate-100'} p-1.5 rounded-lg`}><X size={20}/></button>
             </div>
             <form onSubmit={submitVenta} className="p-6 space-y-4">
-              <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('product')}</label><select className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.producto} onChange={e => onChangeProducto(e.target.value)}>{PRODUCTOS_VENTA.map((producto) => <option key={producto}>{producto}</option>)}</select></div>
+              <div><label htmlFor="dash-producto" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('product')}</label><select id="dash-producto" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.producto} onChange={e => onChangeProducto(e.target.value)}>{PRODUCTOS_VENTA.map((producto) => <option key={producto}>{producto}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('amount')}</label><input type="number" min="1" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.cantidad} onChange={e=>setVentaData({...ventaData, cantidad: parseInt(e.target.value, 10) || 1})}/></div>
-                <div><label className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('method')}</label><select className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.metodo} onChange={e=>setVentaData({...ventaData, metodo: e.target.value})}><option>Efectivo</option><option>Mercado Pago</option></select></div>
+                <div><label htmlFor="dash-cantidad" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('amount')}</label><input id="dash-cantidad" type="number" min="1" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.cantidad} onChange={e=>setVentaData({...ventaData, cantidad: Number.parseInt(e.target.value, 10) || 1})}/></div>
+                <div><label htmlFor="dash-metodo" className={`text-xs font-bold uppercase ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('method')}</label><select id="dash-metodo" className={`w-full border rounded-lg p-3 mt-1 ${theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'}`} value={ventaData.metodo} onChange={e=>setVentaData({...ventaData, metodo: e.target.value})}><option>Efectivo</option><option>Mercado Pago</option></select></div>
               </div>
               <div className={`${theme === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'} p-4 rounded-xl border flex justify-between items-center`}><span className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} font-bold`}>{t('totalToCharge')}</span><span className="text-2xl font-black text-green-500">S/ {(ventaData.monto * ventaData.cantidad).toLocaleString('es-PE')}</span></div>
               <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-bold text-white mt-2 flex items-center justify-center gap-2"><CreditCard size={20}/> {t('processPayment')}</button>
@@ -312,7 +313,7 @@ const StatCard = ({ theme, title, value, sub, icon: Icon, color }) => (
     <div>
       <h3 className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{title}</h3>
       <p className={`text-4xl font-extrabold tracking-tight leading-none mb-1 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{value}</p>
-      <p className={`text-[11px] font-medium ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>{sub}</p>
+      <p className="text-[11px] font-medium text-slate-500">{sub}</p>
     </div>
     <div className={`w-14 h-14 rounded-full bg-${color}-500/10 flex items-center justify-center group-hover:scale-110 transition-transform`}><Icon className={`text-${color}-500`} size={28} /></div>
   </div>
@@ -325,5 +326,32 @@ const HealthTab = ({ theme, title, count, color, icon: Icon, active, onClick }) 
     {active && <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-${color}-500 rounded-t-full`}></div>}
   </button>
 );
+
+ActionButton.propTypes = {
+  theme:     PropTypes.string.isRequired,
+  onClick:   PropTypes.func.isRequired,
+  label:     PropTypes.string.isRequired,
+  icon:      PropTypes.elementType.isRequired,
+  iconColor: PropTypes.string.isRequired,
+};
+
+StatCard.propTypes = {
+  theme: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sub:   PropTypes.string.isRequired,
+  icon:  PropTypes.elementType.isRequired,
+  color: PropTypes.string.isRequired,
+};
+
+HealthTab.propTypes = {
+  theme:   PropTypes.string.isRequired,
+  title:   PropTypes.string.isRequired,
+  count:   PropTypes.number.isRequired,
+  color:   PropTypes.string.isRequired,
+  icon:    PropTypes.elementType.isRequired,
+  active:  PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 export default Dashboard;

@@ -1,26 +1,100 @@
-import React, { useState } from 'react';
-import { RotateCcw, Search, Filter, MessageCircle, Mail, Percent, Send, UserMinus, TrendingUp, CalendarX } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { RotateCcw, Search, MessageCircle, Mail, Percent, Send, UserMinus, TrendingUp, CalendarX, X, CreditCard, Loader2 } from 'lucide-react';
+import { useGym } from '../context/GymContext';
+import { createPaymentPreference } from '../services/payments';
+import CheckoutMP from './CheckoutMP';
+
+// Formatea una fecha ISO a 'DD/MM/YYYY'
+const formatFecha = (fv) => {
+  if (!fv || fv === '—') return '—';
+  const d = new Date(fv);
+  if (isNaN(d.getTime())) return fv;
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+// Calcula días transcurridos desde una fecha
+const diasDesde = (fv) => {
+  if (!fv || fv === '—') return 0;
+  const d = new Date(fv);
+  if (isNaN(d.getTime())) return 0;
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86_400_000));
+};
 
 const Reactivacion = () => {
+  const { socios, planes } = useGym();
   const [searchTerm, setSearchTerm] = useState('');
-  const [motivoFiltro, setMotivoFiltro] = useState('Todos');
+  const [preferenceId, setPreferenceId] = useState(null);
+  const [loadingPago, setLoadingPago] = useState(false);
+  const [socioRenovando, setSocioRenovando] = useState(null);
+  const [errorPago, setErrorPago] = useState(null);
 
-  // Base de datos de EX-SOCIOS para recuperar
-  const exSociosList = [
-    { id: 1, iniciales: 'CM', nombre: 'Carlos Medina', planAnterior: 'Musculación Mensual', fechaBaja: '15/10/2025', tiempoBaja: '6 meses', motivo: 'Económico', tel: '5491144445555' },
-    { id: 2, iniciales: 'SL', nombre: 'Sofía López', planAnterior: 'CrossFit Mensual', fechaBaja: '02/12/2025', tiempoBaja: '4 meses', motivo: 'Falta de tiempo', tel: '5491166667777' },
-    { id: 3, iniciales: 'MR', nombre: 'Marcos Ruiz', planAnterior: 'Funcional Libre', fechaBaja: '20/01/2026', tiempoBaja: '3 meses', motivo: 'Lesión', tel: '5491188889999' },
-    { id: 4, iniciales: 'VT', nombre: 'Valeria Torres', planAnterior: 'Musculación Semestral', fechaBaja: '10/08/2025', tiempoBaja: '8 meses', motivo: 'Mudanza', tel: '5491122223333' },
-    { id: 5, iniciales: 'JN', nombre: 'Joaquín Navarro', planAnterior: 'Spinning Mensual', fechaBaja: '05/11/2025', tiempoBaja: '5 meses', motivo: 'Económico', tel: '5491199990000' },
-  ];
+  // Socios con membresía vencida, mapeados al shape que usa el template
+  const exSociosList = useMemo(() => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
-  const motivosDisponibles = ['Todos', 'Económico', 'Falta de tiempo', 'Lesión', 'Mudanza'];
+    return socios
+      .filter((s) => {
+        if (s.estado === 'Vencida' || s.estado === 'Vencido') return true;
+        const fv = s.fecha_venc ?? s.fechaVenc;
+        if (fv && fv !== '—') {
+          const d = new Date(fv);
+          return !isNaN(d.getTime()) && d < hoy;
+        }
+        return false;
+      })
+      .map((s) => {
+        const fv = s.fecha_venc ?? s.fechaVenc;
+        const dias = diasDesde(fv);
+        const tiempoBaja = dias === 0 ? 'hoy' : dias === 1 ? '1 día' : `${dias} días`;
+        // Intentar encontrar el precio del plan para el flujo de cobro
+        const planData = planes.find(
+          (p) => p.nombre.toLowerCase() === (s.plan ?? '').toLowerCase()
+        );
+        return {
+          id: s.id,
+          iniciales: s.iniciales ?? (s.nombre ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+          nombre: s.nombre,
+          planAnterior: s.plan ?? '—',
+          planPrecio: planData ? Number(planData.precio) : 100,
+          fechaBaja: formatFecha(fv),
+          tiempoBaja,
+          motivo: 'Membresía vencida',
+          tel: s.tel ?? '',
+        };
+      })
+      .sort((a, b) => diasDesde(b.fechaBaja) - diasDesde(a.fechaBaja));
+  }, [socios, planes]);
 
-  const exSociosFiltrados = exSociosList.filter(socio => {
-    const coincideTexto = socio.nombre.toLowerCase().includes(searchTerm.toLowerCase());
-    const coincideMotivo = motivoFiltro === 'Todos' || socio.motivo === motivoFiltro;
-    return coincideTexto && coincideMotivo;
-  });
+  const handleRenovar = async (socio) => {
+    setLoadingPago(true);
+    setErrorPago(null);
+    setSocioRenovando(socio);
+    try {
+      const id = await createPaymentPreference({
+        socio_id: socio.id,
+        monto: socio.planPrecio,
+        titulo_plan: socio.planAnterior,
+      });
+      setPreferenceId(id);
+    } catch (err) {
+      setErrorPago(err.message);
+      setSocioRenovando(null);
+    } finally {
+      setLoadingPago(false);
+    }
+  };
+
+  const handleCerrarCheckout = () => {
+    setPreferenceId(null);
+    setSocioRenovando(null);
+    setErrorPago(null);
+  };
+
+  const exSociosFiltrados = useMemo(
+    () => exSociosList.filter((s) => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())),
+    [exSociosList, searchTerm]
+  );
 
   // Lógica de Campaña de Retención
   const enviarPromoWhatsApp = (socio) => {
@@ -45,12 +119,12 @@ const Reactivacion = () => {
         </button>
       </div>
 
-      {/* TARJETAS DE MÉTRICAS DE REACTIVACIÓN */}
+      {/* TARJETAS DE MÉTRICAS DE REACTIVACIÓN — datos reales de Supabase */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-800 shadow-md flex justify-between items-center group">
           <div>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Base de Ex-Socios</p>
-            <p className="text-3xl font-black text-white">412</p>
+            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Membresías Vencidas</p>
+            <p className="text-3xl font-black text-white">{exSociosList.length}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:scale-110 transition-transform">
             <UserMinus size={24} className="text-red-500"/>
@@ -59,51 +133,38 @@ const Reactivacion = () => {
         
         <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-800 shadow-md flex justify-between items-center group">
           <div>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Recuperados (Mes)</p>
-            <p className="text-3xl font-black text-white">18</p>
+            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Vencidas +14 días</p>
+            <p className="text-3xl font-black text-white">
+              {exSociosList.filter(s => diasDesde(s.fechaBaja.split('/').reverse().join('-')) > 14).length}
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:scale-110 transition-transform">
-            <TrendingUp size={24} className="text-green-500"/>
+          <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:scale-110 transition-transform">
+            <CalendarX size={24} className="text-orange-400"/>
           </div>
         </div>
 
         <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-800 shadow-md flex justify-between items-center group">
           <div>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Tasa de Conversión</p>
-            <p className="text-3xl font-black text-white">4.3%</p>
+            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Filtradas en búsqueda</p>
+            <p className="text-3xl font-black text-white">{exSociosFiltrados.length}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-            <Percent size={24} className="text-blue-500"/>
+            <TrendingUp size={24} className="text-blue-500"/>
           </div>
         </div>
       </div>
 
-      {/* BUSCADOR Y FILTROS */}
+      {/* BUSCADOR */}
       <div className="bg-[#1e293b] p-4 rounded-xl border border-gray-800 flex flex-col md:flex-row gap-4 mb-2">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-3 text-gray-500" size={18} />
           <input 
             type="text" 
-            placeholder="Buscar ex-socio por nombre..." 
+            placeholder="Buscar socio vencido por nombre..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-[#111827] border border-gray-700 text-white rounded-lg pl-11 pr-4 py-2.5 focus:outline-none focus:border-blue-500 text-sm"
           />
-        </div>
-        
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 custom-scrollbar">
-          <span className="text-sm text-gray-400 whitespace-nowrap px-2 flex items-center gap-2">
-            <Filter size={14}/> Motivo de baja:
-          </span>
-          {motivosDisponibles.map(motivo => (
-            <button 
-              key={motivo}
-              onClick={() => setMotivoFiltro(motivo)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${motivoFiltro === motivo ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'}`}
-            >
-              {motivo}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -113,9 +174,9 @@ const Reactivacion = () => {
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wider bg-gray-900/30">
-                <th className="p-4 pl-6 font-medium">Ex-Miembro</th>
-                <th className="p-4 font-medium text-center">Baja Hace</th>
-                <th className="p-4 font-medium">Motivo Registrado</th>
+                <th className="p-4 pl-6 font-medium">Socio Vencido</th>
+                <th className="p-4 font-medium text-center">Venció Hace</th>
+                <th className="p-4 font-medium">Estado</th>
                 <th className="p-4 font-medium text-right pr-6">Acción de Recuperación</th>
               </tr>
             </thead>
@@ -144,12 +205,8 @@ const Reactivacion = () => {
                     </td>
 
                     <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide border 
-                        ${socio.motivo === 'Económico' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 
-                          socio.motivo === 'Falta de tiempo' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 
-                          socio.motivo === 'Lesión' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
-                          'bg-gray-700/50 text-gray-300 border-gray-600'}`}>
-                        {socio.motivo}
+                      <span className="px-3 py-1 rounded-full text-xs font-bold tracking-wide border bg-red-500/10 text-red-400 border-red-500/20">
+                        Vencida
                       </span>
                     </td>
 
@@ -162,7 +219,18 @@ const Reactivacion = () => {
                           onClick={() => enviarPromoWhatsApp(socio)} 
                           className="px-4 py-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/30 rounded-lg flex items-center gap-2 text-sm font-bold transition-all"
                         >
-                          <MessageCircle size={16} /> Enviar Promo 20%
+                          <MessageCircle size={16} /> Promo 20%
+                        </button>
+                        <button
+                          onClick={() => handleRenovar(socio)}
+                          disabled={loadingPago}
+                          className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-lg flex items-center gap-2 text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loadingPago && socioRenovando?.id === socio.id
+                            ? <Loader2 size={16} className="animate-spin" />
+                            : <CreditCard size={16} />
+                          }
+                          Renovar
                         </button>
                       </div>
                     </td>
@@ -171,7 +239,9 @@ const Reactivacion = () => {
               ) : (
                 <tr>
                   <td colSpan="4" className="p-10 text-center text-gray-500 text-sm">
-                    No se encontraron ex-socios con esos filtros.
+                    {searchTerm
+                      ? 'No se encontraron socios que coincidan con la búsqueda.'
+                      : '¡Excelente! No hay membresías vencidas en este momento.'}
                   </td>
                 </tr>
               )}
@@ -179,6 +249,42 @@ const Reactivacion = () => {
           </table>
         </div>
       </div>
+      {/* OVERLAY DE CHECKOUT — visible cuando hay una preferencia activa */}
+      {(preferenceId || errorPago) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#1e293b] border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-white font-extrabold text-lg flex items-center gap-2">
+                  <CreditCard size={20} className="text-blue-400" /> Renovar membresía
+                </h2>
+                {socioRenovando && (
+                  <p className="text-gray-400 text-sm mt-0.5">{socioRenovando.nombre} — {socioRenovando.planAnterior}</p>
+                )}
+              </div>
+              <button
+                onClick={handleCerrarCheckout}
+                className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {errorPago ? (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
+                {errorPago}
+              </div>
+            ) : (
+              <>
+                <p className="text-gray-400 text-xs text-center">
+                  Completa el pago de forma segura a través de Mercado Pago.
+                </p>
+                <CheckoutMP preferenceId={preferenceId} />
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

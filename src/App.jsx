@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { GymProvider, useGym } from './context/GymContext';
 import { useAuth } from './context/AuthContext';
+import { RoleProvider, useRole, ROLES, ROLE_META } from './context/RoleContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
@@ -12,12 +13,15 @@ import Socios from './components/Socios';
 import Metricas from './components/Metricas';
 import AlertasInactividad from './components/AlertasInactividad';
 import Reactivacion from './components/Reactivacion';
-import Mensajes from './components/Mensajes';
 import Planes from './components/Planes';
 import Caja from './components/Caja';
 import ControlAcceso from './components/ControlAcceso';
 import Ajustes from './components/Ajustes';
 import NexusAI from './components/NexusAI';
+import Facturacion from './components/Facturacion';
+import Pagos from './components/Pagos';
+import Diagnosticos from './components/Diagnosticos';
+import Entrenamiento from './components/Entrenamiento';
 import { Menu, Bell, Sun, Moon, Globe, LogOut } from 'lucide-react';
 
 const getUserDisplayName = (user) => {
@@ -38,6 +42,7 @@ const getUserInitials = (user) => {
 function AppContent() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { role, setRole, puedeVer } = useRole();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -51,6 +56,13 @@ function AppContent() {
     limpiarNotificaciones,
     t
   } = useGym();
+
+  // Si el rol cambia y la pestaña activa ya no está permitida, volver al dashboard
+  useEffect(() => {
+    if (!puedeVer(activeTab)) {
+      setActiveTab('dashboard');
+    }
+  }, [role, activeTab, puedeVer]);
 
   const displayName = useMemo(() => getUserDisplayName(user), [user]);
   const initials = useMemo(() => getUserInitials(user), [user]);
@@ -95,12 +107,15 @@ function AppContent() {
       case 'metricas': return <Metricas />;
       case 'alertas': return <AlertasInactividad />;
       case 'reactivacion': return <Reactivacion />;
-      case 'mensajes': return <Mensajes />;
       case 'planes': return <Planes />;
       case 'caja': return <Caja />;
       case 'controlacceso': return <ControlAcceso />;
       case 'ajustes': return <Ajustes />;
       case 'nexusai': return <NexusAI />;
+      case 'facturacion': return <Facturacion />;
+      case 'pagos': return <Pagos />;
+      case 'diagnosticos': return <Diagnosticos />;
+      case 'entrenamiento': return <Entrenamiento />;
       default: return <Dashboard />;
     }
   };
@@ -111,7 +126,7 @@ function AppContent() {
         theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-800'
       }`}
     >
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} role={role} />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <header className={`${theme === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border-b h-16 flex items-center justify-between px-6 shrink-0 z-10`}>
           <div className="flex items-center gap-4">
@@ -125,6 +140,28 @@ function AppContent() {
             </button>
           </div>
           <div className="flex items-center gap-4">
+
+            {/* ── Selector de Rol (para testing) ── */}
+            <div className={`hidden md:flex items-center gap-1 p-1 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/60 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
+              {Object.values(ROLES).map((r) => {
+                const meta = ROLE_META[r];
+                const isActive = role === r;
+                return (
+                  <button
+                    key={r}
+                    onClick={() => setRole(r)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      isActive
+                        ? `${meta.activeBg} ${meta.activeText} shadow-sm`
+                        : `${theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-800'}`
+                    }`}
+                  >
+                    {meta.label}
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="relative">
               <button onClick={() => setShowNotifications(prev => !prev)} className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} relative`}>
                 <Bell size={20} />
@@ -188,9 +225,11 @@ function AppContent() {
 function AppLayout() {
   return (
     <ToastProvider>
-      <GymProvider>
-        <AppContent />
-      </GymProvider>
+      <RoleProvider>
+        <GymProvider>
+          <AppContent />
+        </GymProvider>
+      </RoleProvider>
     </ToastProvider>
   );
 }

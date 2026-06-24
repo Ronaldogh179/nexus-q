@@ -14,15 +14,39 @@ const getIniciales = (nombre) =>
     .join('')
     .toUpperCase() || 'S';
 
-// Normaliza una fila de la tabla `socios` al shape que usan los componentes
+// Normaliza una fila de `socios`: unifica estado 'Vencido'→'Vencida', mapea fecha_venc
 const mapSocio = (row) => ({
   ...row,
   iniciales: getIniciales(row.nombre),
-  fechaVenc: row.fecha_venc ?? row.fechaVenc ?? '—',
+  fechaVenc: row.fecha_venc ?? '—',
   dias: typeof row.dias === 'number' ? row.dias : 0,
+  estado: row.estado === 'Vencido' ? 'Vencida' : (row.estado ?? 'Activo'),
 });
 
-// Extrae el monto numérico de strings como "Mensual (S/ 100)"
+// Normaliza una fila de `planes` desde Supabase al shape de la aplicación
+const mapPlan = (row) => ({
+  ...row,
+  duracion: row.duracion ?? '1 Mes',
+  caracteristicas: Array.isArray(row.caracteristicas) ? row.caracteristicas : [],
+});
+
+// Convierte la columna `duracion` del plan (ej. "3 Meses") a días numéricos
+const getDiasByDuracion = (duracion) => {
+  const d = String(duracion || '').toLowerCase();
+  if (d.includes('12') || d.includes('anual')) return 360;
+  if (d.includes('6')) return 180;
+  if (d.includes('3')) return 90;
+  return 30;
+};
+
+// Devuelve YYYY-MM-DD para hoy + N días (fecha de vencimiento calculada)
+const calcFechaVenc = (dias) => {
+  const d = new Date();
+  d.setDate(d.getDate() + (typeof dias === 'number' ? dias : 30));
+  return d.toISOString().split('T')[0];
+};
+
+// Fallback: extrae precio embebido en strings como "Mensual (S/ 100)"
 const getMontoByPlan = (planStr) => {
   const match = String(planStr || '').match(/S\/\s*(\d+)/);
   return match ? Number(match[1]) : 0;
@@ -34,10 +58,8 @@ export const GymProvider = ({ children }) => {
   const { addToast } = useToast();
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ES');
-  const [notificaciones, setNotificaciones] = useState([
-    'Martín venció hoy',
-    'Nueva venta registrada en caja',
-  ]);
+  // IDs de notificaciones descartadas por el usuario (se limpian al cerrar sesión)
+  const [dismissedNotifs, setDismissedNotifs] = useState(new Set());
 
   // ── Estado principal de datos ─────────────────────────────────────────────
   const [socios, setSocios] = useState([]);
@@ -45,19 +67,8 @@ export const GymProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(null);
 
-  const featuresBase = [
-    'Clases de baile en horarios asignados',
-    'Vestuarios y duchas',
-    'Entrenador personalizado',
-    'Plan de entrenamiento',
-  ];
-
-  const [planes, setPlanes] = useState([
-    { id: 1, nombre: 'Mensual', precio: 100, duración: '1 Mes', estado: 'Activo', caracteristicas: featuresBase },
-    { id: 2, nombre: '3 Meses Promo', precio: 250, duración: '3 Meses', estado: 'Activo', caracteristicas: featuresBase },
-    { id: 3, nombre: '6 Meses Promo', precio: 450, duración: '6 Meses', estado: 'Activo', caracteristicas: featuresBase },
-    { id: 4, nombre: 'Plan Estudiantes', precio: 60, duración: '1 Mes', estado: 'Inactivo', caracteristicas: featuresBase },
-  ]);
+  // planes se carga desde Supabase en el fetchData inicial
+  const [planes, setPlanes] = useState([]);
 
   const [asistencias, setAsistencias] = useState([]);
 
@@ -77,19 +88,23 @@ export const GymProvider = ({ children }) => {
           { data: sociosData, error: sociosErr },
           { data: ventasData, error: ventasErr },
           { data: asistenciasData, error: asistenciasErr },
+          { data: planesData, error: planesErr },
         ] = await Promise.all([
           supabase.from('socios').select('*').order('id', { ascending: false }),
           supabase.from('ventas').select('*').order('id', { ascending: false }),
           supabase.from('asistencias').select('*').order('id', { ascending: false }),
+          supabase.from('planes').select('*').order('id', { ascending: true }),
         ]);
 
         if (sociosErr) throw sociosErr;
         if (ventasErr) throw ventasErr;
         if (asistenciasErr) throw asistenciasErr;
+        if (planesErr) throw planesErr;
 
         setSocios((sociosData || []).map(mapSocio));
         setVentas(ventasData || []);
         setAsistencias(asistenciasData || []);
+        setPlanes((planesData || []).map(mapPlan));
       } catch (err) {
         console.error('[Nexus-Q] Error cargando datos de Supabase:', err.message);
         setDbError(err.message);
@@ -176,15 +191,31 @@ export const GymProvider = ({ children }) => {
   // ── Mutaciones de Socios ──────────────────────────────────────────────────
 
   const agregarSocio = useCallback(async (nuevo) => {
+    // Resuelve el plan desde la BD (exacto o por substrings para compatibilidad con formato antiguo)
+    const planEncontrado = planes.find(
+      (p) => p.nombre.toLowerCase() === String(nuevo.plan || '').toLowerCase()
+    ) ?? planes.find(
+      (p) => String(nuevo.plan || '').toLowerCase().includes(p.nombre.toLowerCase())
+    );
+
+    const diasCalculados = planEncontrado
+      ? getDiasByDuracion(planEncontrado.duracion)
+      : (typeof nuevo.dias === 'number' ? nuevo.dias : 30);
+
+    const planNombre = planEncontrado ? planEncontrado.nombre : nuevo.plan;
+    const montoCalculado = planEncontrado
+      ? Number(planEncontrado.precio)
+      : getMontoByPlan(nuevo.plan);
+
     const socioPayload = {
       nombre: nuevo.nombre,
       dni: nuevo.dni,
       tel: nuevo.tel,
       mail: nuevo.mail,
-      plan: nuevo.plan,
-      estado: nuevo.estado || 'Activo',
-      dias: typeof nuevo.dias === 'number' ? nuevo.dias : 30,
-      fecha_venc: nuevo.fechaVenc ?? null,
+      plan: planNombre,
+      estado: 'Activo',
+      dias: diasCalculados,
+      fecha_venc: calcFechaVenc(diasCalculados),
     };
 
     const { data: insertedSocio, error: socioErr } = await supabase
@@ -199,14 +230,20 @@ export const GymProvider = ({ children }) => {
       return { ok: false, error: socioErr };
     }
 
-    const monto = getMontoByPlan(nuevo.plan);
-    if (monto > 0) {
+    if (montoCalculado > 0) {
+      const metodoVenta = nuevo.metodo || 'Efectivo';
+      // Mapear método legible → valor canónico de la columna `origen` (CHECK constraint)
+      const origenVenta = metodoVenta.toLowerCase().includes('mercado')
+        ? 'mercadopago'
+        : 'efectivo';
+
       const { error: ventaErr } = await supabase.from('ventas').insert([
         {
-          concepto: `Membresía: ${nuevo.nombre} — ${nuevo.plan}`,
-          monto,
-          metodo: 'Efectivo',
+          concepto: `Membresía: ${nuevo.nombre} — ${planNombre}`,
+          monto: montoCalculado,
+          metodo: metodoVenta,
           tipo: 'ingreso',
+          origen: origenVenta,
           socio_id: insertedSocio.id,
         },
       ]);
@@ -231,7 +268,7 @@ export const GymProvider = ({ children }) => {
 
     addToast({ message: `✓ Socio "${nuevo.nombre}" registrado y guardado en la nube.`, type: 'success' });
     return { ok: true };
-  }, [addToast]);
+  }, [planes, addToast]);
 
   const eliminarSocio = useCallback(async (id) => {
     const socioAEliminar = socios.find((s) => s.id === id);
@@ -263,14 +300,21 @@ export const GymProvider = ({ children }) => {
       })
     );
 
+    const estadoNorm = datosActualizados.estado === 'Vencido'
+      ? 'Vencida'
+      : (datosActualizados.estado ?? 'Activo');
+
     const dbPayload = {
       nombre: datosActualizados.nombre,
       dni: datosActualizados.dni,
       tel: datosActualizados.tel,
       mail: datosActualizados.mail,
       plan: datosActualizados.plan,
-      estado: datosActualizados.estado,
+      estado: estadoNorm,
       dias: datosActualizados.dias,
+      ...(datosActualizados.fechaVenc
+        ? { fecha_venc: datosActualizados.fechaVenc }
+        : {}),
     };
 
     const { error } = await supabase.from('socios').update(dbPayload).eq('id', id);
@@ -285,11 +329,15 @@ export const GymProvider = ({ children }) => {
   // ── Mutaciones de Ventas ──────────────────────────────────────────────────
 
   const registrarVenta = useCallback(async (v) => {
+    const metodoVenta = v.metodo ?? 'Efectivo';
+    const origenVenta = metodoVenta.toLowerCase().includes('mercado') ? 'mercadopago' : 'efectivo';
+
     const ventaPayload = {
       concepto: v.concepto,
       monto: v.monto,
-      metodo: v.metodo,
+      metodo: metodoVenta,
       tipo: v.tipo || 'ingreso',
+      origen: origenVenta,
       socio_id: v.socio_id ?? null,
     };
 
@@ -304,21 +352,55 @@ export const GymProvider = ({ children }) => {
     return { ok: true };
   }, [addToast]);
 
-  // ── Mutaciones de Planes (local; Supabase opcional) ───────────────────────
+  // ── Mutaciones de Planes (persistidas en Supabase) ────────────────────────
 
-  const agregarPlan = useCallback((nuevoPlan) => {
-    setPlanes((prev) => [...prev, { ...nuevoPlan, id: Date.now() }]);
-  }, []);
+  const agregarPlan = useCallback(async (nuevoPlan) => {
+    const payload = {
+      nombre: nuevoPlan.nombre,
+      precio: Number(nuevoPlan.precio) || 0,
+      duracion: nuevoPlan.duracion ?? nuevoPlan.duración ?? '1 Mes',
+      estado: nuevoPlan.estado || 'Activo',
+      caracteristicas: Array.isArray(nuevoPlan.caracteristicas) ? nuevoPlan.caracteristicas : [],
+    };
+    const { data, error } = await supabase.from('planes').insert([payload]).select().single();
+    if (error) {
+      console.error('[Nexus-Q] Error al crear plan:', error.message);
+      addToast({ message: `Error al crear plan: ${error.message}`, type: 'error' });
+      return;
+    }
+    setPlanes((prev) => [...prev, mapPlan(data)]);
+    addToast({ message: `Plan "${data.nombre}" creado correctamente.`, type: 'success' });
+  }, [addToast]);
 
-  const editarPlan = useCallback((id, planActualizado) => {
-    setPlanes((prev) =>
-      prev.map((plan) => (plan.id === id ? { ...plan, ...planActualizado } : plan))
-    );
-  }, []);
+  const editarPlan = useCallback(async (id, planActualizado) => {
+    const payload = {
+      nombre: planActualizado.nombre,
+      precio: Number(planActualizado.precio) || 0,
+      duracion: planActualizado.duracion ?? planActualizado.duración ?? '1 Mes',
+      estado: planActualizado.estado || 'Activo',
+      caracteristicas: Array.isArray(planActualizado.caracteristicas) ? planActualizado.caracteristicas : [],
+    };
+    const { error } = await supabase.from('planes').update(payload).eq('id', id);
+    if (error) {
+      console.error('[Nexus-Q] Error al actualizar plan:', error.message);
+      addToast({ message: `Error al actualizar plan: ${error.message}`, type: 'error' });
+      return;
+    }
+    setPlanes((prev) => prev.map((p) => (p.id === id ? { ...p, ...payload } : p)));
+    addToast({ message: `Plan "${planActualizado.nombre}" actualizado.`, type: 'success' });
+  }, [addToast]);
 
-  const eliminarPlan = useCallback((id) => {
-    setPlanes((prev) => prev.filter((plan) => plan.id !== id));
-  }, []);
+  const eliminarPlan = useCallback(async (id) => {
+    const planAEliminar = planes.find((p) => p.id === id);
+    const { error } = await supabase.from('planes').delete().eq('id', id);
+    if (error) {
+      console.error('[Nexus-Q] Error al eliminar plan:', error.message);
+      addToast({ message: `Error al eliminar plan: ${error.message}`, type: 'error' });
+      return;
+    }
+    setPlanes((prev) => prev.filter((p) => p.id !== id));
+    addToast({ message: `Plan "${planAEliminar?.nombre ?? ''}" eliminado.`, type: 'warning' });
+  }, [planes, addToast]);
 
   // ── Check-in: persiste en Supabase; la UI se actualiza vía Realtime (sin estado optimista) ──
 
@@ -373,10 +455,6 @@ export const GymProvider = ({ children }) => {
 
   const toggleLanguage = useCallback(() => {
     setLanguage((prev) => (prev === 'ES' ? 'EN' : 'ES'));
-  }, []);
-
-  const limpiarNotificaciones = useCallback(() => {
-    setNotificaciones([]);
   }, []);
 
   // ── Traducciones ──────────────────────────────────────────────────────────
@@ -673,6 +751,40 @@ export const GymProvider = ({ children }) => {
       asistenciasHoy,
     };
   }, [socios, ventas, asistencias]);
+
+  // ── Notificaciones dinámicas derivadas de los socios ─────────────────────
+  // Genera avisos en tiempo real: membresías vencidas y próximas a vencer (≤3 días).
+  // El usuario puede limpiarlas (dismissedNotifs) pero reaparecerán si el estado cambia.
+  const notificaciones = useMemo(() => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const notifs = [];
+    socios.forEach((s) => {
+      const fv = s.fecha_venc ?? s.fechaVenc;
+      const nombre = s.nombre ?? 'Un socio';
+
+      if (s.estado === 'Vencida' || s.estado === 'Vencido') {
+        notifs.push(`${nombre} tiene la membresía vencida`);
+      } else if (fv && fv !== '—') {
+        const d = new Date(fv);
+        if (!isNaN(d.getTime())) {
+          const diffDays = Math.ceil((d.getTime() - hoy.getTime()) / 86_400_000);
+          if (diffDays === 0) notifs.push(`${nombre} vence hoy`);
+          else if (diffDays === 1) notifs.push(`${nombre} vence mañana`);
+          else if (diffDays > 1 && diffDays <= 3) notifs.push(`${nombre} vence en ${diffDays} días`);
+        }
+      }
+    });
+
+    // Filtrar descartadas y limitar a 15 para no saturar la UI
+    return notifs.filter((n) => !dismissedNotifs.has(n)).slice(0, 15);
+  }, [socios, dismissedNotifs]);
+
+  // limpiarNotificaciones DEBE ir después del useMemo de notificaciones
+  const limpiarNotificaciones = useCallback(() => {
+    setDismissedNotifs((prev) => new Set([...prev, ...notificaciones]));
+  }, [notificaciones]);
 
   const t = useCallback(
     (key) => {

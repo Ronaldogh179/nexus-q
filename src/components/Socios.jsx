@@ -16,37 +16,31 @@ import {
   CreditCard,
 } from 'lucide-react';
 
-const PLAN_OPTIONS = [
-  'Mensual (S/ 100)',
-  'Promo 3 Meses (S/ 250)',
-  'Promo 6 Meses (S/ 450)',
-  'Anual (S/ 720)',
-];
-
-const FILTER_OPTIONS = [
-  { key: 'Todos', label: 'Todos' },
-  { key: 'Mensual', label: 'Mensual' },
-  { key: '3 Meses Promo', label: '3 Meses Promo' },
-  { key: '6 Meses Promo', label: '6 Meses Promo' },
-  { key: 'Anual', label: 'Anual' },
-];
-
+// Fallback por string-matching (soporta formato antiguo "Mensual (S/ 100)" y nuevo "Mensual")
 const getDiasByPlan = (planValue) => {
-  const normalizedPlan = String(planValue || '').toLowerCase();
-  if (normalizedPlan.includes('anual')) return 360;
-  if (normalizedPlan.includes('6 meses')) return 180;
-  if (normalizedPlan.includes('3 meses')) return 90;
-  if (normalizedPlan.includes('mensual')) return 30;
+  const s = String(planValue || '').toLowerCase();
+  if (s.includes('anual') || s.includes('12 meses')) return 360;
+  if (s.includes('6 meses')) return 180;
+  if (s.includes('3 meses')) return 90;
   return 30;
 };
 
-const normalizePlanOption = (planValue) => {
-  const normalizedPlan = String(planValue || '').toLowerCase();
-  if (normalizedPlan.includes('anual')) return 'Anual (S/ 720)';
-  if (normalizedPlan.includes('6 meses')) return 'Promo 6 Meses (S/ 450)';
-  if (normalizedPlan.includes('3 meses')) return 'Promo 3 Meses (S/ 250)';
-  if (normalizedPlan.includes('mensual')) return 'Mensual (S/ 100)';
-  return PLAN_OPTIONS[0];
+// Devuelve el nombre canónico del plan buscando primero en la lista de BD,
+// luego por inferencia de palabras clave (compatibilidad con datos históricos)
+const normalizePlanOption = (planValue, planesDisponibles = []) => {
+  const s = String(planValue || '').toLowerCase();
+  const exacto = planesDisponibles.find((p) => p.nombre.toLowerCase() === s);
+  if (exacto) return exacto.nombre;
+  const parcial = planesDisponibles.find((p) =>
+    s.includes(p.nombre.toLowerCase())
+  );
+  if (parcial) return parcial.nombre;
+  // Fallback por palabras clave
+  if (s.includes('anual')) return 'Anual';
+  if (s.includes('6 meses')) return '6 Meses Promo';
+  if (s.includes('3 meses')) return '3 Meses Promo';
+  if (s.includes('mensual')) return 'Mensual';
+  return planValue;
 };
 
 const emptyForm = () => ({
@@ -54,7 +48,7 @@ const emptyForm = () => ({
   dni: '',
   tel: '',
   mail: '',
-  plan: PLAN_OPTIONS[0],
+  plan: '',
 });
 
 // Usa created_at de Supabase (TIMESTAMPTZ) para contar altas reales del mes actual
@@ -75,7 +69,7 @@ export const diasLabel = (socio) => {
 };
 
 const Socios = () => {
-  const { socios, agregarSocio, editarSocio, eliminarSocio, theme, t } = useGym();
+  const { socios, planes, agregarSocio, editarSocio, eliminarSocio, theme, t } = useGym();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [planFiltro, setPlanFiltro] = useState('Todos');
@@ -134,9 +128,10 @@ const Socios = () => {
   }, []);
 
   const openNuevoSocio = useCallback(() => {
-    setFormData(emptyForm());
+    const primerPlan = planes.find((p) => p.estado === 'Activo');
+    setFormData({ ...emptyForm(), plan: primerPlan?.nombre ?? '' });
     setShowModalNuevo(true);
-  }, []);
+  }, [planes]);
 
   const openVerSocio = useCallback((socio) => {
     setSocioViendo(socio);
@@ -150,10 +145,10 @@ const Socios = () => {
       dni: String(socio.dni || ''),
       tel: socio.tel || '',
       mail: socio.mail || '',
-      plan: normalizePlanOption(socio.plan),
+      plan: normalizePlanOption(socio.plan, planes),
     });
     setShowModalEditar(true);
-  }, []);
+  }, [planes]);
 
   const submitNuevoSocio = async (e) => {
     e.preventDefault();
@@ -297,20 +292,23 @@ const Socios = () => {
           {t('filterByPlan')}
         </p>
         <div className="flex flex-wrap gap-2">
-          {FILTER_OPTIONS.map((plan) => (
+          {[
+            { key: 'Todos', label: t('all') },
+            ...planes.map((p) => ({ key: p.nombre, label: p.nombre })),
+          ].map((opt) => (
             <button
-              key={plan.key}
+              key={opt.key}
               type="button"
-              onClick={() => setPlanFiltro(plan.key)}
+              onClick={() => setPlanFiltro(opt.key)}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
-                planFiltro === plan.key
+                planFiltro === opt.key
                   ? 'bg-blue-600 text-white border-blue-500'
                   : theme === 'dark'
                     ? 'bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-white'
                     : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-900'
               }`}
             >
-              {plan.label}
+              {opt.label}
             </button>
           ))}
         </div>
@@ -458,6 +456,7 @@ const Socios = () => {
           onClose={closeNuevoModal}
           onSubmit={submitNuevoSocio}
           submitLabel={t('saveMember')}
+          planes={planes}
         />
       )}
 
@@ -471,6 +470,7 @@ const Socios = () => {
           onClose={closeEditarModal}
           onSubmit={submitEditarSocio}
           submitLabel={t('edit')}
+          planes={planes}
         />
       )}
 
@@ -561,7 +561,7 @@ const StatCard = ({ theme, title, value, sub, icon: Icon, accent }) => (
   </div>
 );
 
-const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSubmit, submitLabel }) => (
+const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSubmit, submitLabel, planes = [] }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
     <div
       className={`w-full max-w-lg rounded-2xl border overflow-hidden animate-in zoom-in-95 duration-200 ${
@@ -659,11 +659,13 @@ const SocioFormModal = ({ theme, t, title, formData, setFormData, onClose, onSub
                   theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
                 }`}
               >
-                {PLAN_OPTIONS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
+                {planes
+                  .filter((p) => p.estado === 'Activo')
+                  .map((p) => (
+                    <option key={p.id} value={p.nombre}>
+                      {p.nombre} — S/ {Number(p.precio).toLocaleString('es-PE')}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>

@@ -12,7 +12,7 @@ const DEFAULT_FEATURES = [
 const emptyForm = () => ({
   nombre: '',
   precio: 100,
-  duración: '1 Mes',
+  duracion: '1 Mes',
   estado: 'Activo',
   caracteristicas: [...DEFAULT_FEATURES],
 });
@@ -55,7 +55,7 @@ const Planes = () => {
     setFeaturesText(DEFAULT_FEATURES.join(', '));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     const featuresList = featuresText
       .split(',')
@@ -65,21 +65,21 @@ const Planes = () => {
     const payload = {
       nombre: formData.nombre.trim(),
       precio: Number(formData.precio) || 0,
-      duración: formData.duración,
+      duracion: formData.duracion,
       estado: formData.estado,
       caracteristicas: featuresList.length ? featuresList : [...DEFAULT_FEATURES],
     };
 
-    if (planEditando) editarPlan(planEditando.id, payload);
-    else agregarPlan(payload);
+    if (planEditando) await editarPlan(planEditando.id, payload);
+    else await agregarPlan(payload);
 
     closeModal();
   };
 
-  const handleDelete = (plan) => {
+  const handleDelete = async (plan) => {
     const msg = t('deletePlanConfirm').replace('{name}', plan.nombre);
     if (!window.confirm(msg)) return;
-    eliminarPlan(plan.id);
+    await eliminarPlan(plan.id);
   };
 
   const cardClass =
@@ -152,7 +152,7 @@ const Planes = () => {
                 </h3>
                 <p className="text-4xl font-black text-blue-500">S/ {Number(plan.precio).toLocaleString()}</p>
                 <div className={`flex items-center gap-1.5 mt-2 text-sm font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-                  <Calendar size={14} /> <span>{t('planDuration')}: {plan.duración}</span>
+                  <Calendar size={14} /> <span>{t('planDuration')}: {plan.duracion}</span>
                 </div>
               </div>
 
@@ -220,8 +220,8 @@ const Planes = () => {
                 <div>
                   <label className={`block text-sm font-medium mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('planDuration')}</label>
                   <select
-                    value={formData.duración}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, duración: e.target.value }))}
+                    value={formData.duracion}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, duracion: e.target.value }))}
                     className={`w-full border rounded-lg p-3 focus:outline-none focus:border-blue-500 ${
                       theme === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'
                     }`}
@@ -229,6 +229,7 @@ const Planes = () => {
                     <option>1 Mes</option>
                     <option>3 Meses</option>
                     <option>6 Meses</option>
+                    <option>12 Meses</option>
                   </select>
                 </div>
               </div>

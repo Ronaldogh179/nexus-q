@@ -1,0 +1,51 @@
+# ============================================================
+#  Nexus-Q — Configuración Supabase CLI
+#  Docs: https://supabase.com/docs/guides/cli/config
+# ============================================================
+
+[project]
+# El project_id se obtiene en Supabase Dashboard → Settings → General
+# Completar antes de usar `supabase link`
+# project_id = "your-project-id-here"
+
+[api]
+enabled     = true
+port        = 54321
+schemas     = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows    = 1000
+
+[db]
+port        = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port    = 54323
+
+[inbucket]
+enabled = true
+port    = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["https://localhost:5173"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+
+[edge_runtime]
+enabled = true
+policy  = "oneshot"
+
+# ── Edge Functions ────────────────────────────────────────────────────────────
+
+[functions.create-checkout]
+verify_jwt = true     # Requiere JWT de Supabase Auth para llamar a esta función
+
+[functions.payment-webhook]
+verify_jwt = false    # Mercado Pago llama sin JWT; la verificación es por firma HMAC

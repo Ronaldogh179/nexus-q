@@ -18,7 +18,7 @@ const NIVEL_COLOR = {
   Avanzado:     'bg-red-500/15 text-red-300 border-red-500/30',
 };
 
-const EJERCICIO_VACIO = () => ({ id: Date.now() + Math.random(), nombre: '', series: '', reps: '' });
+const EJERCICIO_VACIO = () => ({ id: crypto.randomUUID(), nombre: '', series: '', reps: '' });
 
 const FORM_VACIO = { nombre: '', nivel: 'Intermedio', ejercicios: [EJERCICIO_VACIO()] };
 

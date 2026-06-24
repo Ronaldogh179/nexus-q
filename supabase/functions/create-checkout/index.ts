@@ -70,7 +70,7 @@ serve(async (req: Request) => {
     // ── 3. Registrar pago como 'pending' en Supabase ───────────────────────
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const idempotencyKey = `pago_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const idempotencyKey = `pago_${crypto.randomUUID()}`;
 
     // Construir el objeto de inserción solo con campos válidos.
     // socio_id y plan_id se insertan como null si no se proporcionaron,

@@ -12,7 +12,7 @@ const Facturacion = () => {
   const facturas = useMemo(
     () =>
       (ventas ?? []).map((v) => ({
-        id: `FC-${String(v.id ?? Date.now()).padStart(6, '0')}`,
+        id: `FC-${String(v.id ?? '0').padStart(6, '0')}`,
         fecha: v.created_at
           ? new Date(v.created_at).toLocaleDateString('es-PE')
           : 'Hoy',

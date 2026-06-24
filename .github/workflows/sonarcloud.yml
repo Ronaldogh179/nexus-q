@@ -1,0 +1,56 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  sonarcloud:
+    name: Static Analysis — SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout completo (SonarCloud necesita el historial de Git) ──────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Configurar Node.js ────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      # ── 3. Instalar dependencias ─────────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 4. Ejecutar ESLint y generar reporte ─────────────────────────────────
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: true
+
+      # ── 5. Ejecutar tests unitarios con cobertura (Vitest + v8) ─────────────
+      # Requiere que vite.config.js tenga configurado el reporter 'lcov':
+      #   test: { coverage: { provider: 'v8', reporter: ['text', 'lcov'] } }
+      - name: Run unit tests with coverage
+        run: npx vitest run --coverage
+        continue-on-error: true
+
+      # ── 6. Enviar resultados a SonarCloud ────────────────────────────────────
+      # IMPORTANTE: Crear el secret SONAR_TOKEN en:
+      #   GitHub → Repositorio → Settings → Secrets → Actions → New repository secret
+      #   Valor: token generado en https://sonarcloud.io/account/security
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

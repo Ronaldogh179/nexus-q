@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Settings, Building, User, Bell, Shield, Save, Globe,
   Smartphone, Mail, Key, Loader2,
@@ -23,13 +23,10 @@ const Ajustes = () => {
   });
 
   // ── Pestaña Perfil ──────────────────────────────────────────────────────────
-  const [perfilNombre, setPerfilNombre] = useState('');
-
-  useEffect(() => {
-    if (user) {
-      setPerfilNombre(user.user_metadata?.full_name ?? user.user_metadata?.name ?? '');
-    }
-  }, [user]);
+  // Lazy initializer: user está garantizado (componente detrás de ProtectedRoute).
+  const [perfilNombre, setPerfilNombre] = useState(
+    () => user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? '',
+  );
 
   const userEmail = user?.email ?? '';
   const userInitials = (perfilNombre || userEmail)

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   HeartPulse, Search, User, Activity, Scale, Ruler,
   FileText, Calendar, X, Save, TrendingUp, TrendingDown,
@@ -101,12 +101,11 @@ const Diagnosticos = () => {
     setDiagnosticos(data ?? []);
   }, [addToast]);
 
-  // ── Recalcular IMC automáticamente ───────────────────────────────────────
-  useEffect(() => {
-    if (form.peso && form.altura) {
-      setForm((prev) => ({ ...prev, imc: calcIMC(form.peso, form.altura) }));
-    }
-  }, [form.peso, form.altura]);
+  // ── IMC calculado como estado derivado (evita setState en efecto) ───────
+  const imcDerivado = useMemo(
+    () => (form.peso && form.altura ? calcIMC(form.peso, form.altura) : form.imc),
+    [form.peso, form.altura, form.imc],
+  );
 
   const handleField = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
@@ -120,7 +119,7 @@ const Diagnosticos = () => {
       socio_id:       socioActivo.id,
       peso:           Number(form.peso),
       altura:         Number(form.altura),
-      imc:            form.imc ? Number(form.imc) : null,
+      imc:            imcDerivado ? Number(imcDerivado) : null,
       grasa_corporal: form.grasa_corporal ? Number(form.grasa_corporal) : null,
       masa_muscular:  form.masa_muscular  ? Number(form.masa_muscular)  : null,
       notas:          form.notas.trim() || null,
@@ -327,13 +326,13 @@ const Diagnosticos = () => {
                 <div className="relative">
                   <input
                     type="number" step="0.1" placeholder="—"
-                    value={form.imc}
+                    value={imcDerivado}
                     onChange={(e) => handleField('imc', e.target.value)}
                     className="w-full bg-gray-900/60 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-red-500 text-sm pr-24"
                   />
-                  {form.imc && (
-                    <span className={`absolute right-3 top-3 text-xs font-bold ${imcLabel(form.imc).color}`}>
-                      {imcLabel(form.imc).label}
+                  {imcDerivado && (
+                    <span className={`absolute right-3 top-3 text-xs font-bold ${imcLabel(imcDerivado).color}`}>
+                      {imcLabel(imcDerivado).label}
                     </span>
                   )}
                 </div>

@@ -79,7 +79,7 @@ const DEMO_PLANES = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Metricas = () => {
-  const { socios, asistencias, dashboardMetrics, theme } = useGym();
+  const { socios, dashboardMetrics, theme } = useGym();
   const [ventasLive, setVentasLive] = useState([]);
   const [cargando, setCargando]     = useState(true);
 

@@ -24,5 +24,21 @@ export default defineConfig({
     alias: {
       src: path.resolve(__dirname, 'src'),
     },
+    // Cobertura para SonarCloud — genera coverage/lcov.info (lcov format)
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        'src/main.jsx',
+        'src/App.jsx',
+        '**/*.config.js',
+        '**/*.spec.ts',
+        '**/*.test.jsx',
+        'load-test.js',
+      ],
+    },
   },
 })

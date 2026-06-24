@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useContext, useCallback, useEffect, useMemo } from 'react';
 import { supabase } from 'src/lib/supabase.js';
 import { useToast } from 'src/components/Toast.jsx';
@@ -791,6 +792,10 @@ export const GymProvider = ({ children }) => {
       const safeLanguage = translations[language] ? language : 'ES';
       return translations[safeLanguage][key] || key;
     },
+    // `translations` es un objeto estático definido inline — su referencia cambia
+    // en cada render pero su contenido nunca varía. Incluirlo en deps provocaría
+    // reconstrucciones innecesarias de `t`; se omite de forma explícita.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [language]
   );
 

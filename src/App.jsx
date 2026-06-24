@@ -22,6 +22,7 @@ import Facturacion from './components/Facturacion';
 import Pagos from './components/Pagos';
 import Diagnosticos from './components/Diagnosticos';
 import Entrenamiento from './components/Entrenamiento';
+import DashboardISO from './components/DashboardISO';
 import { Menu, Bell, Sun, Moon, Globe, LogOut } from 'lucide-react';
 
 const getUserDisplayName = (user) => {
@@ -57,12 +58,9 @@ function AppContent() {
     t
   } = useGym();
 
-  // Si el rol cambia y la pestaña activa ya no está permitida, volver al dashboard
-  useEffect(() => {
-    if (!puedeVer(activeTab)) {
-      setActiveTab('dashboard');
-    }
-  }, [role, activeTab, puedeVer]);
+  // Derivar la pestaña segura: si el rol actual no puede ver la activa, usar dashboard.
+  // Evita setState-en-efecto; se recalcula en cada render sin cascada.
+  const safeTab = puedeVer(activeTab) ? activeTab : 'dashboard';
 
   const displayName = useMemo(() => getUserDisplayName(user), [user]);
   const initials = useMemo(() => getUserInitials(user), [user]);
@@ -81,7 +79,8 @@ function AppContent() {
         })
       );
 
-      console.log('[Nexus-Q] Supabase connection check:', checks);
+      // Conexión verificada silenciosamente (sin debug log en producción)
+      void checks;
     };
 
     void testSupabaseConnection();
@@ -101,7 +100,7 @@ function AppContent() {
   };
 
   const renderContent = () => {
-    switch (activeTab) {
+    switch (safeTab) {
       case 'dashboard': return <Dashboard />;
       case 'socios': return <Socios />;
       case 'metricas': return <Metricas />;
@@ -116,6 +115,7 @@ function AppContent() {
       case 'pagos': return <Pagos />;
       case 'diagnosticos': return <Diagnosticos />;
       case 'entrenamiento': return <Entrenamiento />;
+      case 'iso25000': return <DashboardISO />;
       default: return <Dashboard />;
     }
   };
@@ -126,7 +126,7 @@ function AppContent() {
         theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-800'
       }`}
     >
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} role={role} />
+      <Sidebar activeTab={safeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} role={role} />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <header className={`${theme === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border-b h-16 flex items-center justify-between px-6 shrink-0 z-10`}>
           <div className="flex items-center gap-4">

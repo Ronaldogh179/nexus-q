@@ -7,7 +7,7 @@ import {
   Settings, ChevronDown, ChevronRight,
   UserCheck, Activity, BellRing, RotateCcw, ChevronLeft, Bot,
   ShoppingCart, FileText, CreditCard,
-  HeartPulse, Dumbbell,
+  HeartPulse, Dumbbell, BadgeCheck,
 } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
@@ -197,6 +197,14 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
             <button onClick={() => setActiveTab('controlacceso')} className={navBtnClasses('controlacceso')}>
               <ShieldCheck size={18} /><span>Control de Acceso</span>
               <ChevronRight size={14} className={`ml-auto ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+            </button>
+          )}
+
+          {/* ISO 25000 — visible solo para ADMIN */}
+          {puedeVer('iso25000') && (
+            <button onClick={() => setActiveTab('iso25000')} className={navBtnClasses('iso25000')}>
+              <BadgeCheck size={18} className="text-emerald-500" />
+              <span>Auditoría ISO</span>
             </button>
           )}
         </div>

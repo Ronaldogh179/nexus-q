@@ -33,7 +33,7 @@ const Dashboard = () => {
   const PRODUCTOS_VENTA = Object.keys(PRODUCT_PRICES);
 
   // --- CONEXIÓN AL CEREBRO GLOBAL ---
-  const { socios, agregarSocio, registrarVenta, realizarCheckIn, asistencias, ventas, dashboardMetrics, theme, t } = useGym();
+  const { socios, agregarSocio, registrarVenta, realizarCheckIn, asistencias, dashboardMetrics, theme, t } = useGym();
 
   // --- ESTADOS DE NAVEGACIÓN INTERNA ---
   const [activeHealthTab, setActiveHealthTab] = useState('vencidas');
@@ -79,8 +79,6 @@ const Dashboard = () => {
   };
 
   const currentView = getActiveData();
-
-  const sociosActivos = socios.filter(s => s.estado === 'Activo');
 
   // --- ACCIONES ---
   const handleWhatsApp = (socio) => {

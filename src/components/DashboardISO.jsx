@@ -147,11 +147,18 @@ const DashboardISO = () => {
   const [tick, setTick] = useState(0);
   const [latenciaPulso, setLatenciaPulso] = useState(142);
 
-  // Simula una latencia "en vivo" que oscila levemente (±8 ms)
+  // Simula una latencia "en vivo" que oscila levemente (±8 ms).
+  // Se usa crypto.getRandomValues() en lugar de Math.random() para evitar
+  // la vulnerabilidad de seguridad detectada por SonarCloud (CWE-338).
   useEffect(() => {
     const id = setInterval(() => {
       setTick((t) => t + 1);
-      setLatenciaPulso(140 + Math.round((Math.random() * 16) - 8));
+      // Genera un entero uniforme en [0, 255] y lo escala al rango [0, 16)
+      // para obtener un delta de ±8 ms sin usar Math.random().
+      const buf = new Uint8Array(1);
+      window.crypto.getRandomValues(buf);
+      const delta = Math.round((buf[0] / 255) * 16) - 8;
+      setLatenciaPulso(140 + delta);
     }, 2500);
     return () => clearInterval(id);
   }, []);
